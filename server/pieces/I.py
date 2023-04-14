@@ -1,4 +1,4 @@
-from Tetromino import Tetromino
+from pieces import Tetromino
 from Vector import Vector
 
 class I(Tetromino):
@@ -9,9 +9,10 @@ class I(Tetromino):
         x = self.x
         y = self.y
         # returns array of arrays of points. Indexed by orientation
-        return [
+        points = [
             [Vector(x-1, y), Vector(x, y), Vector(x+1, y), Vector(x+2, y)],
             [Vector(x, y-1), Vector(x, y), Vector(x, y+1), Vector(x, y+2)],
             [Vector(x-2, y), Vector(x-1, y), Vector(x, y), Vector(x+1, y)],
             [Vector(x, y-2), Vector(x, y-1), Vector(x, y), Vector(x, y+1)]
         ]
+        return points[self.orientation]

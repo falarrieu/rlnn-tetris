@@ -7,3 +7,4 @@ from pieces.Z import Z
 from pieces.L import L
 from pieces.J import J
 from pieces.PieceProvider import PieceProvider
+from pieces.PlacementGenerator import generateValidPlacements, pieceFits

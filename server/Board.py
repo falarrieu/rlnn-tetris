@@ -15,10 +15,25 @@ class Board:
         print(self.board.shape)
         print(self.board)
         pass
+
+    def showBoard(self):
+        gray_map=plt.cm.get_cmap('gray')
+        plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
+        plt.show()
+
+    def showBoard(self, piece):
+        gray_map=plt.cm.get_cmap('gray')
+        board = self.board * 2
+        for point in piece.getCurrentPoints():
+            board[point.y, point.x] = 1
+        plt.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=2)
+        plt.show()
     
     def filled(self, row, col):
         return self.board[row][col] == 1
     
+    def inBoard(self, row, col):
+        return row < self.height and col >= 0 and col < self.width
 
     def testBoard(self):   
         self.board = np.array([

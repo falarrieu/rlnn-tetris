@@ -10,6 +10,10 @@ class Board:
         self.board = np.zeros((self.height, self.width))
         pass
     
+    def copy(self):
+        boardCopy = Board()
+        boardCopy.board = np.copy(self.board)
+        return boardCopy
     
     def printBoard(self):
         print(self.board.shape)
@@ -34,6 +38,9 @@ class Board:
     
     def inBoard(self, row, col):
         return row < self.height and col >= 0 and col < self.width
+    
+    def getLocation(self, row, col):
+        return self.board[row][col]
 
     def testBoard(self):   
         self.board = np.array([

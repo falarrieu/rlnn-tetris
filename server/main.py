@@ -14,13 +14,12 @@ def main():
     #     print(provider.getNext())
     #     time.sleep(1)
     piece = provider.getNext()
-    placements = generateValidPlacements(board, piece)
+    placements = generateValidPlacementsBFS(board, piece)
     for (x,y,o) in placements:
         piece.x = x
         piece.y = y
         piece.orientation = o
         board.showBoard(piece)
-
 
 
 if __name__ == "__main__":

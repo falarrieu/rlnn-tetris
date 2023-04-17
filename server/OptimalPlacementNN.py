@@ -6,5 +6,3 @@ class OptimalPlacementNN:
 
     def choosePosition(self):
         pass
-
-    def 

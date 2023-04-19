@@ -6,14 +6,17 @@ class Tetromino:
         self.y = y
         self.orientation = 0
 
-    def getPoints(self):
+    def getCurrentPoints(self):
+        return self.getPoints(self.x, self.y, self.orientation)
+    
+    def getPoints(self, x, y, orientation):
         return []
     
     def __repr__(self) -> str:
-        points = self.getPoints()
+        points = self.getPoints(1,1,self.orientation)
         zone = [[' ']*4 for i in range(4)]
         for point in points:
-            zone[point.y-self.y+1][point.x-self.x+1] = '*'
+            zone[point.y][point.x] = '*'
         return '\n'.join([''.join(line) for line in zone])
     
     def turnCW(self):

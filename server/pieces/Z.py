@@ -2,8 +2,8 @@ from pieces import Tetromino
 from Vector import Vector
 
 class Z(Tetromino):
-    def __init__(self, x, y) -> None:
-        super().__init__(x, y)
+    def __init__(self, x, y, orientation=0) -> None:
+        super().__init__(x, y, orientation)
     
     def getPoints(self,x,y,orientation):
         # returns array of arrays of points. Indexed by orientation

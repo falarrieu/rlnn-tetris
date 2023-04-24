@@ -9,7 +9,7 @@ class Board:
         self.height = 20
         self.board = np.zeros((self.height, self.width))
         pass
-    
+        
     def copy(self):
         boardCopy = Board()
         boardCopy.board = np.copy(self.board)

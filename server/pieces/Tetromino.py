@@ -1,10 +1,13 @@
 
 class Tetromino:
 
-    def __init__(self, x, y) -> None:
+    def __init__(self, x, y, orientation=0) -> None:
         self.x = x
         self.y = y
-        self.orientation = 0
+        self.orientation = orientation
+        
+    def getPositionAndOrientation(self):
+        return self.x, self.y, self.orientation
 
     def getCurrentPoints(self):
         return self.getPoints(self.x, self.y, self.orientation)
@@ -24,3 +27,12 @@ class Tetromino:
 
     def turnCCW(self):
         self.orientation = (self.orientation - 1) % 4
+        
+    def moveLeft(self):
+        self.x -= 1
+    
+    def moveRight(self):
+        self.x += 1
+    
+    def moveDown(self, num):
+        self.y += num

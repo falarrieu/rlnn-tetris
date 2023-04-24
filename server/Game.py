@@ -7,9 +7,7 @@ class Game:
     def __init__(self):
         self.board = Board()
         self.pieceProvider = PieceProvider()
-        self.gamePlaying = False
         self.nextPiece()
-        pass
 
     def nextPiece(self):
         """Get the next piece for the next trial."""
@@ -92,4 +90,44 @@ class Game:
             total_reinf += 20
         
         return total_reinf
+    
+    def getValidActions(self):
+        valid_actions = []
+        # Try left
+        tempPiece = self.currentPiece.copy()
+        tempPiece.moveLeft()
+        print(tempPiece.x,tempPiece.y)
+        print(tempPiece)
+        if self.positionIsValid(tempPiece):
+            valid_actions.append(0)
+        # Try right
+        tempPiece = self.currentPiece.copy()
+        tempPiece.moveRight()
+        print(tempPiece.x,tempPiece.y)
+        print(tempPiece)
+        if self.positionIsValid(tempPiece):
+            valid_actions.append(1)
+        # Try CC
+        tempPiece = self.currentPiece.copy()
+        tempPiece.turnCCW()
+        print(tempPiece.x,tempPiece.y)
+        print(tempPiece)
+        if self.positionIsValid(tempPiece):
+            valid_actions.append(2)
+        # Try CW
+        tempPiece = self.currentPiece.copy()
+        tempPiece.turnCW()
+        print(tempPiece.x,tempPiece.y)
+        print(tempPiece)
+        if self.positionIsValid(tempPiece):
+            valid_actions.append(3)
+        valid_actions.append(4)
+        return valid_actions
+
+
+    def positionIsValid(self, piece):
+        for point in piece.getCurrentPoints():
+            if not self.board.inBoard(point.y, point.x) or self.board.filled(point.y, point.x):
+                return False
+        return True
     

@@ -26,6 +26,7 @@ valid_actions = [0, 1, 2, 3, 4]
 def epsilon_greedy(Qnet, state, valid_actions, epsilon):
     '''epsilon is between 0 and 1 and is the probability of returning a random action'''
     # TODO valid_actions = board.getValidActions() It is ok if it dynamically changes
+    valid_actions = game.getValidActions()
     if np.random.uniform() < epsilon:
         # Random Move
         action = np.random.choice(valid_actions)

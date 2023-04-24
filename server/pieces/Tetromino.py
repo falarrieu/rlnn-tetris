@@ -5,6 +5,9 @@ class Tetromino:
         self.x = x
         self.y = y
         self.orientation = orientation
+
+    def copy(self):
+        return type(self)(self.x, self.y, self.orientation)
         
     def getPositionAndOrientation(self):
         return self.x, self.y, self.orientation

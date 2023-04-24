@@ -96,29 +96,21 @@ class Game:
         # Try left
         tempPiece = self.currentPiece.copy()
         tempPiece.moveLeft()
-        print(tempPiece.x,tempPiece.y)
-        print(tempPiece)
         if self.positionIsValid(tempPiece):
             valid_actions.append(0)
         # Try right
         tempPiece = self.currentPiece.copy()
         tempPiece.moveRight()
-        print(tempPiece.x,tempPiece.y)
-        print(tempPiece)
         if self.positionIsValid(tempPiece):
             valid_actions.append(1)
         # Try CC
         tempPiece = self.currentPiece.copy()
         tempPiece.turnCCW()
-        print(tempPiece.x,tempPiece.y)
-        print(tempPiece)
         if self.positionIsValid(tempPiece):
             valid_actions.append(2)
         # Try CW
         tempPiece = self.currentPiece.copy()
         tempPiece.turnCW()
-        print(tempPiece.x,tempPiece.y)
-        print(tempPiece)
         if self.positionIsValid(tempPiece):
             valid_actions.append(3)
         valid_actions.append(4)

@@ -41,6 +41,12 @@ class Board:
     
     def getLocation(self, row, col):
         return self.board[row][col]
+    
+    def validPlacement(self, piece):
+        for point in piece.getCurrentPoints():
+            if not self.inBoard(point.y, point.x) or self.filled(point.y, point.x):
+                return False
+        return True
 
     def testBoard(self):   
         self.board = np.array([

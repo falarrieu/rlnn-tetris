@@ -39,8 +39,10 @@ class Game:
             pass
         else:
             self.currentPiece.moveDown(1)
-        
-        return self.board, self.currentPiece
+
+        valid = self.board.validPlacement(self.currentPiece)
+                
+        return self.board, self.currentPiece, valid
     
     def setGoalPiece(self):
         """Set the piece for which we are aiming to match."""

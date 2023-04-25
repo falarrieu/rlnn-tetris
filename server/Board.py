@@ -20,17 +20,18 @@ class Board:
         print(self.board)
         pass
 
-    def showBoard(self):
-        gray_map=plt.cm.get_cmap('gray')
-        plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
-        plt.show()
+    # def showBoard(self):
+    #     gray_map=plt.cm.get_cmap('gray')
+    #     plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
+    #     plt.show()
 
-    def showBoard(self, piece):
+    def showBoard(self, piece=None):
         gray_map=plt.cm.get_cmap('gray')
-        board = self.board * 2
-        for point in piece.getCurrentPoints():
-            board[point.y, point.x] = 1
-        plt.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=2)
+        if piece is not None:
+            board = self.board * 2
+            for point in piece.getCurrentPoints():
+                board[point.y, point.x] = 1
+        plt.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=2 if piece is not None else 1)
         plt.show()
     
     def filled(self, row, col):

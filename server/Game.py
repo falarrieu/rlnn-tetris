@@ -22,27 +22,34 @@ class Game:
     
     def getNextFrame(self, s, a):
         """Compute the next frame according to the action."""
-        if a == 0: # Left
-            self.currentPiece.moveLeft()
-            pass
-        if a == 1: # Right
-            self.currentPiece.moveRight()
-            pass
-        if a == 2: # CC
-            self.currentPiece.turnCCW()
-            pass
-        if a == 3: # CW
-            self.currentPiece.turnCW()
-            pass
-        if a == 4: # Drop
-            self.currentPiece.moveDown(2)
-            pass
-        else:
-            self.currentPiece.moveDown(1)
 
-        valid = self.board.validPlacement(self.currentPiece)
-                
-        return self.board, self.currentPiece, valid
+        checkPiece = self.currentPiece.copy()
+        checkPiece.moveDown(1)
+        will_lock = not self.board.validPlacement(checkPiece)
+        if not will_lock:
+            if a == 0: # Left
+                self.currentPiece.moveLeft()
+                pass
+            if a == 1: # Right
+                self.currentPiece.moveRight()
+                pass
+            if a == 2: # CC
+                self.currentPiece.turnCCW()
+                pass
+            if a == 3: # CW
+                self.currentPiece.turnCW()
+                pass
+            if a == 4: # Drop
+                self.currentPiece.moveDown(2)
+                pass
+            else:
+                self.currentPiece.moveDown(1)
+
+        return self.board, self.currentPiece, will_lock
+    
+    def lockPiece(self):
+        for point in self.currentPiece.getCurrentPoints():
+            self.board.board[point.y, point.x] = 1
     
     def setGoalPiece(self):
         """Set the piece for which we are aiming to match."""

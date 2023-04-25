@@ -49,7 +49,6 @@ class Game:
         chosen_placement = valid_placements[index]
         pieceType = type(self.currentPiece)
         piece = pieceType(*chosen_placement)
-        self.board.showBoard(piece)
         return piece
     
     def getReinforcements(self, prevState, nextState):
@@ -63,8 +62,8 @@ class Game:
         prevBoard, prevPiece = prevState 
         nextBoard, nextPiece = nextState
         
-        prevX, prevY, prevO = prevPiece.getPostionAndOrientation()
-        nextX, nextY, nextO = nextPiece.getPostionAndOrientation()
+        prevX, prevY, prevO = prevPiece.getPositionAndOrientation()
+        nextX, nextY, nextO = nextPiece.getPositionAndOrientation()
         goalX, goalY, goalO = self.goalPiece.getPositionAndOrientation()
         
         prevXDist = abs(prevX - goalX)

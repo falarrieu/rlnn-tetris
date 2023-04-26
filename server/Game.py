@@ -49,7 +49,7 @@ class Game:
                 if not will_lock:
                     self.currentPiece.moveDown(1)
 
-        return self.board, self.currentPiece, will_lock
+        return self.board, self.currentPiece.copy(), will_lock
     
     def lockPiece(self):
         # for point in self.currentPiece.getCurrentPoints():
@@ -84,37 +84,37 @@ class Game:
         # X Distance
         prevXDist = abs(prevX - goalX)
         nextXDist = abs(nextX - goalX) 
-        
+             
         if(prevXDist > nextXDist): # Getting Closer
             total_reinf += 1
         else:
             total_reinf -= 1        
         
-        # Y Distance
-        prevYDist = abs(prevY - goalY)
-        nextYDist = abs(nextY - goalY)
+        # # Y Distance
+        # prevYDist = abs(prevY - goalY)
+        # nextYDist = abs(nextY - goalY)
         
-        if(prevYDist > nextYDist): # Getting Closer
-            total_reinf += 1
-        else:
-            total_reinf -= 1  
+        # if(prevYDist > nextYDist): # Getting Closer
+        #     total_reinf += 1
+        # else:
+        #     total_reinf -= 1  
 
-        # Orientation
-        prevODist = abs(prevO - goalO)
-        if prevODist == 3:
-            prevODist = 1
-        nextODist = abs(nextO - goalO)  
-        if nextODist == 3:
-            nextODist = 1   
+        # # Orientation
+        # prevODist = abs(prevO - goalO)
+        # if prevODist == 3:
+        #     prevODist = 1
+        # nextODist = abs(nextO - goalO)  
+        # if nextODist == 3:
+        #     nextODist = 1   
         
-        if(prevODist > nextODist):
-            total_reinf += 1
-        else:
-            total_reinf -= 1
+        # if(prevODist > nextODist):
+        #     total_reinf += 1
+        # else:
+        #     total_reinf -= 1
             
-        # Reaching goal
-        if(goalX == nextX and goalY == nextY and nextO == goalO):
-            total_reinf += 20      
+        # # Reaching goal
+        # if(goalX == nextX and goalY == nextY and nextO == goalO):
+        #     total_reinf += 20     
         
         return total_reinf
     
@@ -130,21 +130,21 @@ class Game:
         tempPiece.moveRight()
         if self.positionIsValid(tempPiece):
             valid_actions.append(1)
-        # Try CC
-        tempPiece = self.currentPiece.copy()
-        tempPiece.turnCCW()
-        if self.positionIsValid(tempPiece):
-            valid_actions.append(2)
-        # Try CW
-        tempPiece = self.currentPiece.copy()
-        tempPiece.turnCW()
-        if self.positionIsValid(tempPiece):
-            valid_actions.append(3)
-        # Try Drop
-        tempPiece = self.currentPiece.copy()
-        tempPiece.moveDown(2)
-        if self.positionIsValid(tempPiece):
-            valid_actions.append(4)
+        # # Try CC
+        # tempPiece = self.currentPiece.copy()
+        # tempPiece.turnCCW()
+        # if self.positionIsValid(tempPiece):
+        #     valid_actions.append(2)
+        # # Try CW
+        # tempPiece = self.currentPiece.copy()
+        # tempPiece.turnCW()
+        # if self.positionIsValid(tempPiece):
+        #     valid_actions.append(3)
+        # # Try Drop
+        # tempPiece = self.currentPiece.copy()
+        # tempPiece.moveDown(2)
+        # if self.positionIsValid(tempPiece):
+        #     valid_actions.append(4)
         return valid_actions
 
 

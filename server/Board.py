@@ -23,11 +23,6 @@ class Board:
         print(self.board)
         pass
 
-    # def showBoard(self):
-    #     gray_map=plt.cm.get_cmap('gray')
-    #     plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
-    #     plt.show()
-    
     def setGoalPiece(self, piece):
         self.goalPiece = piece
 

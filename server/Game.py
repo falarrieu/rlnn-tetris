@@ -81,6 +81,7 @@ class Game:
         nextX, nextY, nextO = nextPiece.getPositionAndOrientation()
         goalX, goalY, goalO = self.goalPiece.getPositionAndOrientation()
         
+        # X Distance
         prevXDist = abs(prevX - goalX)
         nextXDist = abs(nextX - goalX) 
         
@@ -89,17 +90,29 @@ class Game:
         else:
             total_reinf -= 1        
         
+        # Y Distance
         prevYDist = abs(prevY - goalY)
         nextYDist = abs(nextY - goalY)
         
         if(prevYDist > nextYDist): # Getting Closer
             total_reinf += 1
         else:
-            total_reinf -= 1       
+            total_reinf -= 1  
+
+        # Orientation
+        prevODist = abs(prevO - goalO)
+        if prevODist == 3:
+            prevODist = 1
+        nextODist = abs(nextO - goalO)  
+        if nextODist == 3:
+            nextODist = 1   
         
-        if(nextO == goalO):
+        if(prevODist > nextODist):
             total_reinf += 1
+        else:
+            total_reinf -= 1
             
+        # Reaching goal
         if(goalX == nextX and goalY == nextY and nextO == goalO):
             total_reinf += 20      
         

@@ -48,8 +48,9 @@ class Game:
         return self.board, self.currentPiece, will_lock
     
     def lockPiece(self):
-        for point in self.currentPiece.getCurrentPoints():
-            self.board.board[point.y, point.x] = 1
+        # for point in self.currentPiece.getCurrentPoints():
+        #     self.board.board[point.y, point.x] = 1
+        pass
     
     def setGoalPiece(self):
         """Set the piece for which we are aiming to match."""
@@ -121,7 +122,11 @@ class Game:
         tempPiece.turnCW()
         if self.positionIsValid(tempPiece):
             valid_actions.append(3)
-        valid_actions.append(4)
+        # Try Drop
+        tempPiece = self.currentPiece.copy()
+        tempPiece.moveDown(2)
+        if self.positionIsValid(tempPiece):
+            valid_actions.append(4)
         return valid_actions
 
 

@@ -9,7 +9,6 @@ class Board:
         self.width = 10
         self.height = 20
         self.board = np.zeros((self.height, self.width))
-        self.fig, self.ax = plt.subplots()
         self.goalPiece = None
         pass
         
@@ -37,22 +36,23 @@ class Board:
     
     
     def createAnimations(self, frames, trial_num):
+        fig, ax = plt.subplots()
         gray_map=plt.cm.get_cmap('gray')
-        self.im  = self.ax.imshow(self.board * 2, cmap=gray_map.reversed(), vmin=0, vmax=2)
-        ani = FuncAnimation(self.fig, self.frameUpdate, frames=frames, interval=50)
+        im  = ax.imshow(self.board * 2, cmap=gray_map.reversed(), vmin=0, vmax=2)
+
+        def frameUpdate(self, frame):
+            if frame[1] is not None:
+                board = self.board * 2
+                for point in frame[1].getCurrentPoints():
+                    board[point.y, point.x] = 2
+            for point in self.goalPiece.getCurrentPoints():
+                    board[point.y, point.x] = 1
+            im.set_data(board)
+            ax.set_title('Trial %d' % frame[2])  
+
+        ani = FuncAnimation(fig, frameUpdate, frames=frames, interval=50)
         fileName = 'tetrisTrial%d.mp4' % trial_num
         ani.save(filename=fileName, dpi=100)
-        
-    def frameUpdate(self, frame):
-        if frame[1] is not None:
-            board = self.board * 2
-            for point in frame[1].getCurrentPoints():
-                board[point.y, point.x] = 2
-        for point in self.goalPiece.getCurrentPoints():
-                board[point.y, point.x] = 1
-        
-        self.im.set_data(board)
-        self.ax.set_title('Trial %d' % frame[2])    
     
     def filled(self, row, col):
         return self.board[row][col] == 1

@@ -37,6 +37,9 @@ class MovementNN:
         self.error_trace = []
         self.epsilon_trace = np.zeros((self.n_trials, 1))
 
+        '''Visualizing'''
+        self.animation_frames = np.array([])
+
         pass
     
     def setup_standardization(self, Qnet, Xmeans, Xstds, Tmeans, Tstds):
@@ -109,8 +112,9 @@ class MovementNN:
             frame = (step, self.game.getPiece().copy(), trial_num)
             frames.append(frame)
 
-        # if trial_num in self.trial_animations:
-        #     self.game.getBoard().createAnimations(frames, trial_num)
+        if trial_num in self.trial_animations:
+            np.append(self.animation_frames, [trial_num, *frames])
+            # self.game.getBoard().createAnimations(frames, trial_num)
 
         return (X, R, Qn)
     
@@ -143,4 +147,10 @@ class MovementNN:
             self.error_trace += self.Qnet.error_trace
             
             self.game.nextPiece()
+
+    def display_animations(self):
+        for animation in self.animation_frames:
+            trial_num = animation[0]
+            frames = animation[1:]
+            self.board.createAnimations(frames, trial_num)
         

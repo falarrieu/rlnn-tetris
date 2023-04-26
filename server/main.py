@@ -4,7 +4,7 @@ from MovementNN import MovementNN
 
 def main(): 
     
-    n_trials = 1000
+    n_trials = 11
     n_steps_per_trial = 20
     n_epochs = 200
     learning_rate = 0.05
@@ -35,6 +35,8 @@ def main():
     # R Trace
     plt.plot(np.arange(0, n_trials * n_epochs), movementNN.r_trace)
     plt.show()
+
+    movementNN.display_animations()
 
 
 

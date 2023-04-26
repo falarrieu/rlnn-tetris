@@ -43,7 +43,11 @@ class Game:
                 self.currentPiece.moveDown(2)
                 pass
             else:
-                self.currentPiece.moveDown(1)
+                checkPiece = self.currentPiece.copy()
+                checkPiece.moveDown(1)
+                will_lock = not self.board.validPlacement(checkPiece)
+                if not will_lock:
+                    self.currentPiece.moveDown(1)
 
         return self.board, self.currentPiece, will_lock
     
@@ -59,6 +63,7 @@ class Game:
         chosen_placement = valid_placements[index]
         pieceType = type(self.currentPiece)
         piece = pieceType(*chosen_placement)
+        self.board.setGoalPiece(piece)
         return piece
     
     def getReinforcements(self, prevState, nextState):
@@ -96,7 +101,7 @@ class Game:
             total_reinf += 1
             
         if(goalX == nextX and goalY == nextY and nextO == goalO):
-            total_reinf += 20
+            total_reinf += 20      
         
         return total_reinf
     

@@ -1,6 +1,7 @@
 import numpy as np
 import random as rand
 import matplotlib.pyplot as plt 
+from matplotlib.animation import FuncAnimation
 
 class Board:
 
@@ -8,6 +9,8 @@ class Board:
         self.width = 10
         self.height = 20
         self.board = np.zeros((self.height, self.width))
+        self.fig, self.ax = plt.subplots()
+        self.goalPiece = None
         pass
         
     def copy(self):
@@ -24,15 +27,37 @@ class Board:
     #     gray_map=plt.cm.get_cmap('gray')
     #     plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
     #     plt.show()
+    
+    def setGoalPiece(self, piece):
+        self.goalPiece = piece
 
     def showBoard(self, piece=None):
         gray_map=plt.cm.get_cmap('gray')
         if piece is not None:
-            board = self.board * 2
+            board = self.board * 2 
             for point in piece.getCurrentPoints():
                 board[point.y, point.x] = 1
         plt.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=2 if piece is not None else 1)
         plt.show()
+    
+    
+    def createAnimations(self, frames, trial_num):
+        gray_map=plt.cm.get_cmap('gray')
+        self.im  = self.ax.imshow(self.board * 2, cmap=gray_map.reversed(), vmin=0, vmax=2)
+        ani = FuncAnimation(self.fig, self.frameUpdate, frames=frames, interval=50)
+        fileName = 'tetrisTrial%d.mp4' % trial_num
+        ani.save(filename=fileName, dpi=100)
+        
+    def frameUpdate(self, frame):
+        if frame[1] is not None:
+            board = self.board * 2
+            for point in frame[1].getCurrentPoints():
+                board[point.y, point.x] = 2
+        for point in self.goalPiece.getCurrentPoints():
+                board[point.y, point.x] = 1
+        
+        self.im.set_data(board)
+        self.ax.set_title('Trial %d' % frame[2])    
     
     def filled(self, row, col):
         return self.board[row][col] == 1

@@ -28,13 +28,13 @@ def main():
     plt.plot(np.arange(0, n_trials), movementNN.epsilon_trace)
     plt.show()
     
-    # X Trace
-    plt.plot(np.arange(0, n_trials * n_epochs), movementNN.x_trace)
-    plt.show()
+    # # X Trace
+    # plt.plot(np.arange(0, n_trials * n_trials), movementNN.x_trace)
+    # plt.show()
     
-    # R Trace
-    plt.plot(np.arange(0, n_trials * n_epochs), movementNN.r_trace)
-    plt.show()
+    # # R Trace
+    # plt.plot(np.arange(0, n_trials * n_trials), movementNN.r_trace)
+    # plt.show()
 
     movementNN.display_animations()
 

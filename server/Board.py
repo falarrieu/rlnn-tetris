@@ -40,15 +40,15 @@ class Board:
         gray_map=plt.cm.get_cmap('gray')
         im  = ax.imshow(self.board * 2, cmap=gray_map.reversed(), vmin=0, vmax=2)
 
-        def frameUpdate(self, frame):
+        def frameUpdate(frame):
             if frame[1] is not None:
                 board = self.board * 2
                 for point in frame[1].getCurrentPoints():
                     board[point.y, point.x] = 2
-            for point in self.goalPiece.getCurrentPoints():
+            for point in frame[2].getCurrentPoints():
                     board[point.y, point.x] = 1
             im.set_data(board)
-            ax.set_title('Trial %d' % frame[2])  
+            ax.set_title('Trial %d' % frame[3])  
 
         ani = FuncAnimation(fig, frameUpdate, frames=frames, interval=50)
         fileName = 'tetrisTrial%d.mp4' % trial_num

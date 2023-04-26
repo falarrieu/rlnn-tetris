@@ -38,7 +38,7 @@ class MovementNN:
         self.epsilon_trace = np.zeros((self.n_trials, 1))
 
         '''Visualizing'''
-        self.animation_frames = np.array([])
+        self.animation_frames = []
 
         pass
     
@@ -109,11 +109,11 @@ class MovementNN:
             Qn[step, 0] = qn
             s, a = sn, an  # Advance one time step
             
-            frame = (step, self.game.getPiece().copy(), trial_num)
+            frame = (step, self.game.getPiece().copy(), self.game.goalPiece.copy(), trial_num)
             frames.append(frame)
 
         if trial_num in self.trial_animations:
-            np.append(self.animation_frames, [trial_num, *frames])
+            self.animation_frames.append([trial_num, *frames])
             # self.game.getBoard().createAnimations(frames, trial_num)
 
         return (X, R, Qn)
@@ -152,5 +152,5 @@ class MovementNN:
         for animation in self.animation_frames:
             trial_num = animation[0]
             frames = animation[1:]
-            self.board.createAnimations(frames, trial_num)
+            self.game.getBoard().createAnimations(frames, trial_num)
         

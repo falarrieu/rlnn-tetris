@@ -4,7 +4,7 @@ from MovementNN import MovementNN
 
 def main(): 
     
-    n_trials = 11
+    n_trials = 10001
     n_steps_per_trial = 20
     n_epochs = 200
     learning_rate = 0.05
@@ -21,20 +21,30 @@ def main():
     movementNN.train()
     
     # Error Trace
-    plt.plot(np.arange(0, n_trials * n_epochs), movementNN.error_trace)
+    plt.plot(movementNN.error_trace)
+    plt.ylabel('TD Error')
+    plt.xlabel('Epochs')    
     plt.show()
     
     # Epsilon Trace
-    plt.plot(np.arange(0, n_trials), movementNN.epsilon_trace)
+    plt.plot(movementNN.epsilon_trace)
+    plt.ylabel('$\epsilon$')
+    plt.xlabel('Trials')
+    plt.ylim(0, 1)
     plt.show()
-    
-    # # X Trace
-    # plt.plot(np.arange(0, n_trials * n_trials), movementNN.x_trace)
-    # plt.show()
-    
-    # # R Trace
-    # plt.plot(np.arange(0, n_trials * n_trials), movementNN.r_trace)
-    # plt.show()
+
+    # R Trace
+    plt.plot(movementNN.r_trace[: n_trials * n_steps_per_trial, 0])
+    plt.ylabel('R')
+    plt.xlabel('Steps')
+    plt.show()
+
+    # R Smoothed
+    plt.plot(np.convolve(movementNN.r_trace[:n_trials * n_steps_per_trial, 0], np.array([0.01] * 100), mode='valid'))
+    plt.ylabel('R smoothed')
+    plt.ylim(-1.1, 0)
+    plt.xlabel('Steps')
+    plt.show()
 
     movementNN.display_animations()
 

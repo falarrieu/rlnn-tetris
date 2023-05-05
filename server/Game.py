@@ -8,6 +8,9 @@ class Game:
         self.board = Board()
         self.pieceProvider = PieceProvider()
         self.nextPiece()
+        
+    def getGoalPiece(self):
+        return self.goalPiece
 
     def nextPiece(self):
         """Get the next piece for the next trial."""
@@ -49,7 +52,7 @@ class Game:
                 if not will_lock:
                     self.currentPiece.moveDown(1)
 
-        return self.board, self.currentPiece.copy(), will_lock
+        return self.board, self.currentPiece.copy(), self.goalPiece.copy(), will_lock
     
     def lockPiece(self):
         # for point in self.currentPiece.getCurrentPoints():
@@ -74,8 +77,8 @@ class Game:
         """
         total_reinf = 0
         
-        prevBoard, prevPiece = prevState 
-        nextBoard, nextPiece = nextState
+        prevBoard, prevPiece, prevGoal = prevState 
+        nextBoard, nextPiece, nextGoal = nextState
         
         prevX, prevY, prevO = prevPiece.getPositionAndOrientation()
         nextX, nextY, nextO = nextPiece.getPositionAndOrientation()

@@ -24,15 +24,15 @@ class MovementNN:
         self.epsilon_decay = np.exp(np.log(self.final_epsilon) / self.n_trials)
         
         '''Instantiate Neural Network'''
-        self.Qnet = NeuralNetwork(18, self.n_hidden, 1)
+        self.Qnet = NeuralNetwork(26, self.n_hidden, 1)
         
         self.Xmeans = [np.mean(np.arange(0,2**19-1))] * 10
-        self.Xmeans.extend([np.mean(np.arange(0,10)), np.mean(np.arange(0,20))] * 4)
+        self.Xmeans.extend([np.mean(np.arange(0,10)), np.mean(np.arange(0,20))] * 8)
         self.Xstds = [np.std(np.arange(0,2**19-1))] * 10
-        self.Xstds.extend([np.std(np.arange(0,10)), np.std(np.arange(0,20))] * 4)
+        self.Xstds.extend([np.std(np.arange(0,10)), np.std(np.arange(0,20))] * 8)
         self.setup_standardization(self.Qnet, self.Xmeans, self.Xstds, [5], [1])
         
-        self.x_trace = np.zeros((self.n_trials * self.n_steps_per_trial, 18))
+        self.x_trace = np.zeros((self.n_trials * self.n_steps_per_trial, 26))
         self.r_trace = np.zeros((self.n_trials * self.n_steps_per_trial, 1))
         self.error_trace = []
         self.epsilon_trace = np.zeros((self.n_trials, 1))
@@ -72,7 +72,7 @@ class MovementNN:
         self.Qnet.use(X)
     
     def initial_state(self):   
-        return self.game.getBoard(), self.game.getPiece().copy() 
+        return self.game.getBoard(), self.game.getPiece().copy(), self.game.getGoalPiece().copy() 
 
     def next_state(self, s, a):
         return self.game.getNextFrame(s, a)
@@ -96,8 +96,8 @@ class MovementNN:
         for step in range(n_samples):
             
             next_state = next_state_f(s, a)        # Update state, sn, from s and a
-            sn = next_state[:2]
-            will_lock = next_state[2]
+            sn = next_state[:3]
+            will_lock = next_state[3]
             if will_lock:
                 self.game.lockPiece()
                 break
@@ -123,10 +123,11 @@ class MovementNN:
         top to bottom, and convert to decimal to create the inputs to the NN. This is great because no information
         is lost about the column, and you can determine whether a column is higher than another just by comparing
         the value. Hopefully This will help to preserve patterns'''
-        board, piece = s
+        board, piece, goal = s
         decimal_columns = [int(''.join([str(int(item)) for item in row]), 2) for row in board.board.T]
         flat_piece_points = np.reshape([[point.x,point.y] for point in piece.getCurrentPoints()], 8)
-        return np.hstack((decimal_columns, flat_piece_points))
+        flat_goal_points = np.reshape([[point.x,point.y] for point in goal.getCurrentPoints()], 8)
+        return np.hstack((decimal_columns, flat_piece_points, flat_goal_points))
     
     def train(self):
         

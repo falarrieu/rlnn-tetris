@@ -4,7 +4,7 @@ from MovementNN import MovementNN
 
 def main(): 
     
-    n_trials = 10001
+    n_trials = 101
     n_steps_per_trial = 20
     n_epochs = 200
     learning_rate = 0.05
@@ -46,7 +46,7 @@ def main():
     plt.xlabel('Steps')
     plt.show()
 
-    movementNN.display_animations()
+    # movementNN.display_animations()
 
 
 

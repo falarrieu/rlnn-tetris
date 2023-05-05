@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import Optimizers
 import sys  # for sys.float_info.epsilon
@@ -179,3 +180,10 @@ train:
         Y = Ys[-1]
         # Unstandardize output Y before returning it
         return Y * self.Tstds + self.Tmeans
+    
+    def save(self):
+        np.save("saved_weights", self.all_weights)
+        
+    def load(self):
+        if os.path.exists("saved_weights.npy"):
+            self.all_weights = np.load("saved_weights.npy")

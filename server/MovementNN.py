@@ -36,6 +36,7 @@ class MovementNN:
         self.r_trace = np.zeros((self.n_trials * self.n_steps_per_trial, 1))
         self.error_trace = []
         self.epsilon_trace = np.zeros((self.n_trials, 1))
+        self.attempts_trace = []
 
         '''Visualizing'''
         self.animation_frames = []
@@ -83,34 +84,52 @@ class MovementNN:
     def make_samples(self, Qnet, initial_state_f, next_state_f, reinforcement_f,
                  valid_actions, n_samples, epsilon, trial_num):
 
+        # goalPieceDisplay = self.game.getGoalPiece()
+        # print(f"{goalPieceDisplay.x},{goalPieceDisplay.y},{goalPieceDisplay.orientation}")
+        # self.game.getBoard().showBoard(goalPieceDisplay)
+        
         X = np.zeros((n_samples, Qnet.n_inputs))
         R = np.zeros((n_samples, 1))
         Qn = np.zeros((n_samples, 1))
-
-        s = initial_state_f()
-        expanded_state = self.expand_state(s)
-        a, _ = self.epsilon_greedy(Qnet, expanded_state, valid_actions, epsilon)
-
+        
         frames = []
-        # Collect data from n_samples steps
-        for step in range(n_samples):
+        successful = False
+        attempts = 0
+        max_attempts = 100
+        while(not successful and attempts < max_attempts):
+            attempts += 1
             
-            next_state = next_state_f(s, a)        # Update state, sn, from s and a
-            sn = next_state[:3]
-            will_lock = next_state[3]
-            if will_lock:
-                self.game.lockPiece()
-                break
-            rn = reinforcement_f(s, sn)    # Calculate resulting reinforcement
-            an, qn = self.epsilon_greedy(Qnet, self.expand_state(sn), valid_actions, epsilon)  # choose next action
-    #         print(an)
-            X[step, :] = self.expand_state(s)
-            R[step, 0] = rn
-            Qn[step, 0] = qn
-            s, a = sn, an  # Advance one time step
+            s = initial_state_f()
+            expanded_state = self.expand_state(s)
+            a, _ = self.epsilon_greedy(Qnet, expanded_state, valid_actions, epsilon)
+
+            # Collect data from n_samples steps
+            for step in range(n_samples):
+                
+                next_state = next_state_f(s, a)        # Update state, sn, from s and a
+                sn = next_state[:3]
+                will_lock = next_state[3]
+                if will_lock:
+                    self.game.lockPiece()
+                    break
+                rn, successful = reinforcement_f(s, sn)    # Calculate resulting reinforcement
+                an, qn = self.epsilon_greedy(Qnet, self.expand_state(sn), valid_actions, epsilon)  # choose next action
+                 # print(an)
+                X[step, :] = self.expand_state(s)
+                R[step, 0] = rn
+                Qn[step, 0] = qn
+                s, a = sn, an  # Advance one time step
+                
+                frame = (step, self.game.getPiece().copy(), self.game.goalPiece.copy(), trial_num)
+                frames.append(frame)
+                
+            # pieceEnd = self.game.getPiece()
+            # successful = pieceEnd.x == goalPieceDisplay.x and pieceEnd.y == goalPieceDisplay.y and pieceEnd.orientation == goalPieceDisplay.orientation
+            # print("SUCCESS" if successful else f"FAILURE: {pieceEnd.x},{pieceEnd.y},{pieceEnd.orientation}")
             
-            frame = (step, self.game.getPiece().copy(), self.game.goalPiece.copy(), trial_num)
-            frames.append(frame)
+            self.game.reset()
+
+        self.attempts_trace.append(attempts)         
 
         if trial_num in self.trial_animations:
             self.animation_frames.append([trial_num, *frames])

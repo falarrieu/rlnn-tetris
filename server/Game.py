@@ -1,5 +1,5 @@
 from Board import Board
-from pieces import PieceProvider, generateValidPlacementsBFS
+from pieces import PieceProvider, generateValidPlacementsBFS, L
 import numpy as np
 
 class Game:
@@ -17,7 +17,8 @@ class Game:
 
     def nextPiece(self):
         """Get the next piece for the next trial."""
-        self.currentPiece = self.pieceProvider.getNext()
+        # self.currentPiece = self.pieceProvider.getNext()
+        self.currentPiece = L(4,0)
         self.goalPiece = self.setGoalPiece()
         self.prevPiece = self.currentPiece.copy()
     
@@ -65,11 +66,13 @@ class Game:
     
     def setGoalPiece(self):
         """Set the piece for which we are aiming to match."""
-        valid_placements = generateValidPlacementsBFS(self.board, self.currentPiece)
-        index = np.random.randint(0,len(valid_placements))
-        chosen_placement = valid_placements[index]
-        pieceType = type(self.currentPiece)
-        piece = pieceType(*chosen_placement)
+        # valid_placements = generateValidPlacementsBFS(self.board, self.currentPiece)
+        # index = np.random.randint(0,len(valid_placements))
+        # chosen_placement = valid_placements[index]
+        # pieceType = type(self.currentPiece)
+        # piece = pieceType(*chosen_placement)
+        piece = L(8, 19)
+        piece.orientation = 3 # Bottom right corner, L rotated counter clockwise once
         self.board.setGoalPiece(piece)
         return piece
     
@@ -120,10 +123,12 @@ class Game:
             total_reinf -= 1
             
         # Reaching goal
+        success = False
         if(goalX == nextX and goalY == nextY and nextO == goalO):
-            total_reinf += 20     
+            total_reinf += 20
+            success = True 
         
-        return total_reinf
+        return total_reinf, success
     
     def getValidActions(self):
         valid_actions = []

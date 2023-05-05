@@ -9,6 +9,9 @@ class Game:
         self.pieceProvider = PieceProvider()
         self.nextPiece()
         
+    def reset(self):
+        self.currentPiece = self.prevPiece.copy()
+        
     def getGoalPiece(self):
         return self.goalPiece
 
@@ -16,6 +19,7 @@ class Game:
         """Get the next piece for the next trial."""
         self.currentPiece = self.pieceProvider.getNext()
         self.goalPiece = self.setGoalPiece()
+        self.prevPiece = self.currentPiece.copy()
     
     def getBoard(self):
         return self.board

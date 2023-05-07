@@ -16,6 +16,7 @@ from ReplayMemory import Transition, ReplayMemory
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython:
     from IPython import display
+    matplotlib.rcParams['figure.figsize'] = (15,8)
     
 plt.ion() # Maybe remove??
 
@@ -123,8 +124,8 @@ class NNTrainer:
             currentPoints = self.game.getPiece().getCurrentPoints()
             goalPoints = self.game.getGoalPiece().getCurrentPoints()
             for i in range(len(currentPoints)):
-                board[currentPoints[i].y, currentPoints[i].x] = 2
                 board[goalPoints[i].y, goalPoints[i].x] = 1
+                board[currentPoints[i].y, currentPoints[i].x] = 2
             board_ax.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=3)
 
         plt.pause(0.001)  # pause a bit so that plots are updated
@@ -188,9 +189,9 @@ class NNTrainer:
       
     def train(self):  
         if torch.cuda.is_available():
-            num_episodes = 600
+            num_episodes = 6000
         else:
-            num_episodes = 50
+            num_episodes = 1000
 
         for i_episode in range(num_episodes):
             # Initialize the environment and get it's state

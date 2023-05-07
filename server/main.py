@@ -9,8 +9,8 @@ def main():
     n_steps_per_trial = 20
     n_epochs = 200
     learning_rate = 0.05
-    n_hidden = [50, 25]
-    gamma = 0.8
+    n_hidden = [512, 256, 128]
+    gamma = 0.4 #0.8
     final_epsilon = 0.0001  
     epsilon = 1.0
     trial_animations = [100, 500, 1000, 5000, 10000, 50000, 75000, 99997, 99998, 99999, 100000]

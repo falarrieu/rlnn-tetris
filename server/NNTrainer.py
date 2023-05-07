@@ -68,13 +68,13 @@ class NNTrainer:
         self.loss_trace = []
 
 
-    def select_action(self, state):
+    def select_action(self, state, no_random=False):
         valid_actions = self.game.getValidActions()
         sample = random.random()
         eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * \
             math.exp(-1. * self.steps_done / self.EPS_DECAY)
         self.steps_done += 1
-        if sample > eps_threshold:
+        if sample > eps_threshold or no_random:
             with torch.no_grad():
                 # t.max(1) will return the largest column value of each row.
                 # second column on max result is index of where max element was
@@ -187,7 +187,7 @@ class NNTrainer:
         self.loss_trace.append(loss.item())
       
       
-    def train(self):  
+    def train(self):
         if torch.cuda.is_available():
             num_episodes = 6000
         else:
@@ -237,3 +237,47 @@ class NNTrainer:
         self.plot_all(show_result=True)
         plt.ioff()
         plt.show()
+        
+    def use(self):
+        state = self.game.reset()
+        state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+        for t in count():
+            action = self.select_action(state, no_random=True)
+            
+            observation, terminated = self.game.getNextFrame(action)
+            done = terminated
+
+            if terminated:
+                next_state = None
+            else:
+                next_state = torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+
+            # Move to the next state
+            state = next_state
+            
+            self.plot_tetris()
+            if done:
+                break
+        self.plot_tetris()
+            
+    def plot_tetris(self, show_result=False):
+        global is_ipython
+        plt.figure(1)
+        
+        # Tetris Image
+        board_ax = plt.subplot(1,1,1)
+        gray_map=plt.cm.get_cmap('gray')
+        board = self.game.getBoard().board * 3 
+        currentPoints = self.game.getPiece().getCurrentPoints()
+        goalPoints = self.game.getGoalPiece().getCurrentPoints()
+        for i in range(len(currentPoints)):
+            board[goalPoints[i].y, goalPoints[i].x] = 1
+            board[currentPoints[i].y, currentPoints[i].x] = 2
+        board_ax.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=3)
+
+        plt.pause(0.001)  # pause a bit so that plots are updated
+        if not show_result:
+            display.display(plt.gcf())
+            display.clear_output(wait=True)
+        else:
+            display.display(plt.gcf())

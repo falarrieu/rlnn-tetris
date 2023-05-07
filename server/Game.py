@@ -79,13 +79,13 @@ class Game:
     
     def setGoalPiece(self):
         """Set the piece for which we are aiming to match."""
-        # valid_placements = generateValidPlacementsBFS(self.board, self.currentPiece)
-        # index = np.random.randint(0,len(valid_placements))
-        # chosen_placement = valid_placements[index]
-        # pieceType = type(self.currentPiece)
-        # piece = pieceType(*chosen_placement)
-        piece = L(8, 19)
-        piece.orientation = 3 # Bottom right corner, L rotated counter clockwise once
+        valid_placements = generateValidPlacementsBFS(self.board, self.currentPiece)
+        index = np.random.randint(0,len(valid_placements))
+        chosen_placement = valid_placements[index]
+        pieceType = type(self.currentPiece)
+        piece = pieceType(*chosen_placement)
+        # piece = L(8, 19)
+        # piece.orientation = 3 # Bottom right corner, L rotated counter clockwise once
         self.board.setGoalPiece(piece)
         return piece
     

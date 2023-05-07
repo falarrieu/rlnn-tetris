@@ -1,13 +1,12 @@
 import random
 import math
-
 import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
 import matplotlib
 import matplotlib.pyplot as plt
-
+from Game import Game
 from NeuralNetwork2 import DQN
 from ReplayMemory import Transition, ReplayMemory
 
@@ -20,6 +19,9 @@ if is_ipython:
 class NNTrainer:
     
     def __init__(self):
+        
+        self.game = Game()
+        
         # BATCH_SIZE is the number of transitions sampled from the replay buffer
         # GAMMA is the discount factor as mentioned in the previous section
         # EPS_START is the starting value of epsilon
@@ -37,7 +39,8 @@ class NNTrainer:
 
         self.n_actions = 5 # Number of possible actions
         # Get the number of state observations
-        self.state, self.info = env.reset()
+        self.state = self.game.reset()
+        # self.state, self.info = env.reset()
         self.n_observations = len(self.state)
         self.n_hiddens_per_layer = [512, 256, 128]
 
@@ -72,7 +75,8 @@ class NNTrainer:
                 # found, so we pick action with the larger expected reward.
                 return self.policy_net(state).max(1)[1].view(1, 1)
         else:
-            return torch.tensor([[env.action_space.sample()]], device=self.device, dtype=torch.long)
+            return torch.tensor([random.choice(self.game.getValidActions())], device=self.device, dtype=torch.long)
+            # return torch.tensor([[env.action_space.sample()]], device=self.device, dtype=torch.long)
 
 
     episode_durations = []

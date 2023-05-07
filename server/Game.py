@@ -10,7 +10,19 @@ class Game:
         self.nextPiece()
         
     def reset(self):
-        self.currentPiece = self.prevPiece.copy()
+        s = self.game.getBoard(), self.game.getPiece().copy(), self.game.getGoalPiece().copy()
+        return self.expand_state(s)
+    
+    def expand_state(self, s):
+        '''Every square on the board has a 0 if empty or 1 if filled. So we take each column, make a binary string from
+        top to bottom, and convert to decimal to create the inputs to the NN. This is great because no information
+        is lost about the column, and you can determine whether a column is higher than another just by comparing
+        the value. Hopefully This will help to preserve patterns'''
+        board, piece, goal = s
+        decimal_columns = [int(''.join([str(int(item)) for item in row]), 2) for row in board.board.T]
+        flat_piece_points = np.reshape([[point.x,point.y] for point in piece.getCurrentPoints()], 8)
+        flat_goal_points = np.reshape([[point.x,point.y] for point in goal.getCurrentPoints()], 8)
+        return np.hstack((decimal_columns, flat_piece_points, flat_goal_points))    
         
     def getGoalPiece(self):
         return self.goalPiece

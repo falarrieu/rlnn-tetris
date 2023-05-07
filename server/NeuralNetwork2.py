@@ -16,7 +16,6 @@ class DQN(nn.Module):
         self.layers.extend([nn.Linear(n_hiddens_per_layer[i], n_hiddens_per_layer[i+1]) for i in range(len(n_hiddens_per_layer)-1)])
         self.layers.append(nn.Linear(n_hiddens_per_layer[-1], n_actions))
         self.linear_layers = nn.ParameterList(self.layers)
-        print(self.layers)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).

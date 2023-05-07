@@ -64,9 +64,11 @@ class NNTrainer:
         
         
         self.episode_durations = []
+        self.loss_trace = []
 
 
     def select_action(self, state):
+        valid_actions = self.game.getValidActions()
         sample = random.random()
         eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * \
             math.exp(-1. * self.steps_done / self.EPS_DECAY)
@@ -76,29 +78,54 @@ class NNTrainer:
                 # t.max(1) will return the largest column value of each row.
                 # second column on max result is index of where max element was
                 # found, so we pick action with the larger expected reward.
-                return self.policy_net(state).max(1)[1].view(1, 1)
+                result = self.policy_net(state)
+                result = torch.gather(result, 1, torch.LongTensor([valid_actions])) # Only allow actions that are valid
+                return torch.tensor([[valid_actions[result.max(1)[1].view(1, 1).item()]]]) # Confusing, sorry
         else:
-            return torch.tensor([[random.choice(self.game.getValidActions())]], device=self.device, dtype=torch.long)
+            return torch.tensor([[random.choice(valid_actions)]], device=self.device, dtype=torch.long)
             # return torch.tensor([[env.action_space.sample()]], device=self.device, dtype=torch.long)
 
 
-    def plot_durations(self, show_result=False):
+    def plot_all(self, show_result=False):
         global is_ipython
         plt.figure(1)
         durations_t = torch.tensor(self.episode_durations, dtype=torch.float)
+        loss_trace_t = torch.tensor(self.loss_trace, dtype=torch.float)
+        
         if show_result:
             plt.title('Result')
         else:
             plt.clf()
             plt.title('Training...')
-        plt.xlabel('Episode')
-        plt.ylabel('Duration')
-        plt.plot(durations_t.numpy())
+            
+        # Durations plot
+        dur_ax = plt.subplot(1,3,1)
+        dur_ax.set_xlabel('Episode')
+        dur_ax.set_ylabel('Duration')
+        dur_ax.plot(durations_t.numpy())
         # Take 100 episode averages and plot them too
         if len(durations_t) >= 100:
             means = durations_t.unfold(0, 100, 1).mean(1).view(-1)
             means = torch.cat((torch.zeros(99), means))
-            plt.plot(means.numpy())
+            dur_ax.plot(means.numpy())
+            
+        # Loss plot
+        loss_ax = plt.subplot(1,3,2)
+        loss_ax.set_xlabel('Trial')
+        loss_ax.set_ylabel('Loss')
+        loss_ax.plot(loss_trace_t.numpy())
+        
+        # Tetris Image
+        if not show_result:
+            board_ax = plt.subplot(1,3,3)
+            gray_map=plt.cm.get_cmap('gray')
+            board = self.game.getBoard().board * 3 
+            currentPoints = self.game.getPiece().getCurrentPoints()
+            goalPoints = self.game.getGoalPiece().getCurrentPoints()
+            for i in range(len(currentPoints)):
+                board[currentPoints[i].y, currentPoints[i].x] = 2
+                board[goalPoints[i].y, goalPoints[i].x] = 1
+            board_ax.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=3)
 
         plt.pause(0.001)  # pause a bit so that plots are updated
         if is_ipython:
@@ -155,10 +182,12 @@ class NNTrainer:
         # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
+        
+        self.loss_trace.append(loss.item())
       
       
     def train(self):  
-        if torch.cuda.is_available() or True:
+        if torch.cuda.is_available():
             num_episodes = 600
         else:
             num_episodes = 50
@@ -169,7 +198,7 @@ class NNTrainer:
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             for t in count():
                 action = self.select_action(state)
-                # print(action)
+
                 # observation, reward, terminated, truncated, _ = env.step(action.item())
                 observation, terminated = self.game.getNextFrame(action)
                 reward, success = self.game.getReinforcements()
@@ -200,10 +229,10 @@ class NNTrainer:
 
                 if done:
                     self.episode_durations.append(t + 1)
-                    self.plot_durations()
+                    self.plot_all()
                     break
 
         print('Complete')
-        self.plot_durations(show_result=True)
+        self.plot_all(show_result=True)
         plt.ioff()
         plt.show()

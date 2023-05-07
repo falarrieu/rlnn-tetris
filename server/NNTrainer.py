@@ -1,5 +1,7 @@
 import random
 import math
+from itertools import count
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -14,11 +16,17 @@ from ReplayMemory import Transition, ReplayMemory
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython:
     from IPython import display
+    
+plt.ion() # Maybe remove??
 
 
 class NNTrainer:
     
     def __init__(self):
+        
+        # if GPU is to be used
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        print(self.device)
         
         self.game = Game()
         
@@ -49,25 +57,20 @@ class NNTrainer:
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
-        self.memory = ReplayMemory(10000)
+        self.memory = ReplayMemory(10000) # Maybe reduce this max capacity?
 
 
         self.steps_done = 0
         
         
-
-        plt.ion()
-
-        # if GPU is to be used
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.episode_durations = []
 
 
     def select_action(self, state):
-        global is_ipython
         sample = random.random()
         eps_threshold = self.EPS_END + (self.EPS_START - self.EPS_END) * \
-            math.exp(-1. * steps_done / self.EPS_DECAY)
-        steps_done += 1
+            math.exp(-1. * self.steps_done / self.EPS_DECAY)
+        self.steps_done += 1
         if sample > eps_threshold:
             with torch.no_grad():
                 # t.max(1) will return the largest column value of each row.
@@ -75,14 +78,12 @@ class NNTrainer:
                 # found, so we pick action with the larger expected reward.
                 return self.policy_net(state).max(1)[1].view(1, 1)
         else:
-            return torch.tensor([random.choice(self.game.getValidActions())], device=self.device, dtype=torch.long)
+            return torch.tensor([[random.choice(self.game.getValidActions())]], device=self.device, dtype=torch.long)
             # return torch.tensor([[env.action_space.sample()]], device=self.device, dtype=torch.long)
 
 
-    episode_durations = []
-
-
     def plot_durations(self, show_result=False):
+        global is_ipython
         plt.figure(1)
         durations_t = torch.tensor(self.episode_durations, dtype=torch.float)
         if show_result:
@@ -106,6 +107,7 @@ class NNTrainer:
                 display.clear_output(wait=True)
             else:
                 display.display(plt.gcf())
+            
                 
     def optimize_model(self):
         if len(self.memory) < self.BATCH_SIZE:
@@ -122,6 +124,7 @@ class NNTrainer:
                                             batch.next_state)), device=self.device, dtype=torch.bool)
         non_final_next_states = torch.cat([s for s in batch.next_state
                                                     if s is not None])
+        
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
@@ -152,3 +155,55 @@ class NNTrainer:
         # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
+      
+      
+    def train(self):  
+        if torch.cuda.is_available() or True:
+            num_episodes = 600
+        else:
+            num_episodes = 50
+
+        for i_episode in range(num_episodes):
+            # Initialize the environment and get it's state
+            state = self.game.reset()
+            state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            for t in count():
+                action = self.select_action(state)
+                # print(action)
+                # observation, reward, terminated, truncated, _ = env.step(action.item())
+                observation, terminated = self.game.getNextFrame(action)
+                reward, success = self.game.getReinforcements()
+                reward = torch.tensor([reward], device=self.device)
+                done = terminated
+
+                if terminated:
+                    next_state = None
+                else:
+                    next_state = torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+
+                # Store the transition in memory
+                self.memory.push(state, action, next_state, reward)
+
+                # Move to the next state
+                state = next_state
+
+                # Perform one step of the optimization (on the policy network)
+                self.optimize_model()
+
+                # Soft update of the target network's weights
+                # θ′ ← τ θ + (1 −τ )θ′
+                target_net_state_dict = self.target_net.state_dict()
+                policy_net_state_dict = self.policy_net.state_dict()
+                for key in policy_net_state_dict:
+                    target_net_state_dict[key] = policy_net_state_dict[key]*self.TAU + target_net_state_dict[key]*(1-self.TAU)
+                self.target_net.load_state_dict(target_net_state_dict)
+
+                if done:
+                    self.episode_durations.append(t + 1)
+                    self.plot_durations()
+                    break
+
+        print('Complete')
+        self.plot_durations(show_result=True)
+        plt.ioff()
+        plt.show()

@@ -10,7 +10,8 @@ class Game:
         self.nextPiece()
         
     def reset(self):
-        s = self.game.getBoard(), self.game.getPiece().copy(), self.game.getGoalPiece().copy()
+        self.nextPiece()
+        s = self.getBoard(), self.getPiece().copy(), self.getGoalPiece().copy()
         return self.expand_state(s)
     
     def expand_state(self, s):
@@ -40,9 +41,9 @@ class Game:
     def getPiece(self):
         return self.currentPiece
     
-    def getNextFrame(self, s, a):
+    def getNextFrame(self, a):
         """Compute the next frame according to the action."""
-
+        self.prevState = (self.board, self.currentPiece.copy(), self.goalPiece.copy())
         checkPiece = self.currentPiece.copy()
         checkPiece.moveDown(1)
         will_lock = not self.board.validPlacement(checkPiece)
@@ -69,7 +70,7 @@ class Game:
                 if not will_lock:
                     self.currentPiece.moveDown(1)
 
-        return self.board, self.currentPiece.copy(), self.goalPiece.copy(), will_lock
+        return self.expand_state((self.board, self.currentPiece.copy(), self.goalPiece.copy())), will_lock
     
     def lockPiece(self):
         # for point in self.currentPiece.getCurrentPoints():
@@ -88,7 +89,7 @@ class Game:
         self.board.setGoalPiece(piece)
         return piece
     
-    def getReinforcements(self, prevState, nextState):
+    def getReinforcements(self):
         """
         If we are getting closer to the goal X give positive reinforcement and vice versa.
         If we are getting closer to the goal Y give positive reinforcement and vice versa.
@@ -96,8 +97,8 @@ class Game:
         """
         total_reinf = 0
         
-        prevBoard, prevPiece, prevGoal = prevState 
-        nextBoard, nextPiece, nextGoal = nextState
+        prevBoard, prevPiece, prevGoal = self.prevState 
+        nextBoard, nextPiece, nextGoal = self.board, self.currentPiece, self.goalPiece
         
         prevX, prevY, prevO = prevPiece.getPositionAndOrientation()
         nextX, nextY, nextO = nextPiece.getPositionAndOrientation()

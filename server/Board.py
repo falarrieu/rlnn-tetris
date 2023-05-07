@@ -31,8 +31,11 @@ class Board:
             board = self.board * 2 
             for point in piece.getCurrentPoints():
                 board[point.y, point.x] = 1
-        plt.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=2 if piece is not None else 1)
-        plt.show()
+            plt.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=2)
+            plt.show()
+        else:
+            plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
+            plt.show()
     
     
     def createAnimations(self, frames, trial_num):

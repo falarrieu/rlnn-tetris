@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import time
 from MovementNN import MovementNN
+from NNTrainer import NNTrainer
 
 def main(): 
     
@@ -79,6 +80,9 @@ def main():
     np.save("animation_frames", movementNN.animation_frames)
 
 
+def main2():
+    trainer = NNTrainer()
+    trainer.train()
 
 if __name__ == "__main__":
-    main()
+    main2()

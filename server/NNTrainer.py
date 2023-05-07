@@ -39,9 +39,10 @@ class NNTrainer:
         # Get the number of state observations
         self.state, self.info = env.reset()
         self.n_observations = len(self.state)
+        self.n_hiddens_per_layer = [512, 256, 128]
 
-        self.policy_net = DQN(self.n_observations, self.n_actions).to(self.device)
-        self.target_net = DQN(self.n_observations, self.n_actions).to(self.device)
+        self.policy_net = DQN(self.n_observations, self.n_hiddens_per_layer, self.n_actions).to(self.device)
+        self.target_net = DQN(self.n_observations, self.n_hiddens_per_layer, self.n_actions).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)

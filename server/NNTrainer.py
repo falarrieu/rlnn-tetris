@@ -33,6 +33,8 @@ class NNTrainer:
                  learning_rate,
                  n_hiddens_per_layer,
                  num_episodes,
+                 optimizer="adam",
+                 points_state=True,
                  use_display=True
                  ):
         
@@ -48,6 +50,7 @@ class NNTrainer:
             self.num_episodes = num_episodes
         
         self.game = Game()
+        self.game.points_state = points_state
         
         # BATCH_SIZE is the number of transitions sampled from the replay buffer
         # GAMMA is the discount factor as mentioned in the previous section
@@ -75,7 +78,11 @@ class NNTrainer:
         self.target_net = DQN(self.n_observations, self.n_hiddens_per_layer, self.n_actions).to(self.device)
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
-        self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
+        if optimizer == "adam":
+            self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=self.LR, amsgrad=True)
+        else:
+            self.optimizer = optim.SGD(self.policy_net.parameters(), lr=self.LR)
+            
         self.memory = ReplayMemory(10000) # Maybe reduce this max capacity?
 
 
@@ -137,6 +144,11 @@ class NNTrainer:
         loss_ax.set_xlabel('Trial')
         loss_ax.set_ylabel('Loss')
         loss_ax.plot(loss_trace_t.numpy())
+        # Take 100 episode averages and plot them too
+        if len(loss_trace_t) >= 100:
+            means = loss_trace_t.unfold(0, 100, 1).mean(1).view(-1)
+            means = torch.cat((torch.zeros(99), means))
+            loss_ax.plot(means.numpy())
         
         # Tetris Image
         if not show_result:

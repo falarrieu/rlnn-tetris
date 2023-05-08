@@ -7,6 +7,7 @@ class Game:
     def __init__(self):
         self.board = Board()
         self.pieceProvider = PieceProvider()
+        self.points_state = True
         self.nextPiece()
         
     def reset(self):
@@ -21,8 +22,12 @@ class Game:
         the value. Hopefully This will help to preserve patterns'''
         board, piece, goal = s
         decimal_columns = [int(''.join([str(int(item)) for item in row]), 2) for row in board.board.T]
-        flat_piece_points = np.reshape([[point.x,point.y] for point in piece.getCurrentPoints()], 8)
-        flat_goal_points = np.reshape([[point.x,point.y] for point in goal.getCurrentPoints()], 8)
+        if self.points_state:
+            flat_piece_points = np.reshape([[point.x,point.y] for point in piece.getCurrentPoints()], 8)
+            flat_goal_points = np.reshape([[point.x,point.y] for point in goal.getCurrentPoints()], 8)
+        else:
+            flat_piece_points = np.array([self.currentPiece.x, self.currentPiece.y, self.currentPiece.orientation])
+            flat_goal_points = np.array([self.goalPiece.x, self.goalPiece.y, self.goalPiece.orientation])
         return np.hstack((decimal_columns, flat_piece_points, flat_goal_points))    
         
     def getGoalPiece(self):

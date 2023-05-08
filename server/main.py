@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import time
 from MovementNN import MovementNN
 from NNTrainer import NNTrainer
+import os
 
 def main(): 
     
@@ -81,8 +82,37 @@ def main():
 
 
 def main2():
-    trainer = NNTrainer()
+    BATCH_SIZE = 128
+    GAMMA = 0.99
+    EPS_START = 0.9
+    EPS_END = 0.05
+    EPS_DECAY = 1000
+    TAU = 0.005
+    LR = 1e-4
+    n_hiddens_per_layer=[512, 256, 128]
+    num_episodes = 100000
+
+    trainer = NNTrainer(
+        batch_size=BATCH_SIZE,
+        gamma=GAMMA,
+        eps_start=EPS_START,
+        eps_end=EPS_END,
+        eps_decay=EPS_DECAY,
+        tau=TAU,
+        learning_rate=LR,
+        n_hiddens_per_layer=n_hiddens_per_layer,
+        num_episodes=num_episodes,
+        use_display=False,
+    )
+
+    file_path = "saved_model.pth"
+
+    if os.path.exists(file_path):
+        trainer.load_model(file_path)
+
     trainer.train()
+
+    trainer.save_model(file_path)
 
 if __name__ == "__main__":
     main2()

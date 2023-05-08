@@ -16,7 +16,7 @@ from ReplayMemory import Transition, ReplayMemory
 is_ipython = 'inline' in matplotlib.get_backend()
 if is_ipython:
     from IPython import display
-    matplotlib.rcParams['figure.figsize'] = (15,8)
+    matplotlib.rcParams['figure.figsize'] = (20,10)
     
 plt.ion() # Maybe remove??
 
@@ -32,8 +32,11 @@ class NNTrainer:
                  tau,
                  learning_rate,
                  n_hiddens_per_layer,
-                 num_episodes
+                 num_episodes,
+                 use_display=True
                  ):
+        
+        self.use_display = use_display
         
         # if GPU is to be used
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -81,7 +84,10 @@ class NNTrainer:
         
         self.episode_durations = []
         self.loss_trace = []
+        self.total_accuracy = 0
         self.accuracy_trace = []
+        self.total_correct = 0
+        self.correctness_trace = []
 
 
     def select_action(self, state, no_random=False):
@@ -145,7 +151,7 @@ class NNTrainer:
             board_ax.imshow(board, cmap=gray_map.reversed(), vmin=0, vmax=3)
 
         plt.pause(0.001)  # pause a bit so that plots are updated
-        if is_ipython:
+        if is_ipython and self.use_display:
             if not show_result:
                 display.display(plt.gcf())
                 display.clear_output(wait=True)
@@ -242,17 +248,14 @@ class NNTrainer:
 
                 if done:
                     self.episode_durations.append(t + 1)
-                    self.plot_all()
+                    if self.use_display: self.plot_all()
                     break
 
         print('Complete')
         finalFig = plt.subplot(1,3,1).figure
         self.plot_all(show_result=True)
         plt.ioff()
-        plt.show()
         finalFig.tight_layout(pad=0.1)
-        finalFig.set_figwidth(25)
-        finalFig.set_figheight(10)
         finalFig.savefig("./figures/allPlots.png")
         
     def use(self):
@@ -272,10 +275,14 @@ class NNTrainer:
             # Move to the next state
             state = next_state
             
-            self.plot_tetris()
+            # self.plot_tetris()
             if done:
+                self.accuracy_trace.append(self.game.calculate_piece_accuracy())
+                self.total_correct += 1 if self.game.calculate_piece_accuracy() == 1 else 0
+                self.correctness_trace.append(self.total_correct/ len(self.accuracy_trace))
+                
                 break
-        self.plot_tetris()
+        # self.plot_tetris()
             
     def plot_tetris(self, show_result=False):
         global is_ipython

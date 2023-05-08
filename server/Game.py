@@ -30,8 +30,7 @@ class Game:
 
     def nextPiece(self):
         """Get the next piece for the next trial."""
-        # self.currentPiece = self.pieceProvider.getNext()
-        self.currentPiece = L(4,0)
+        self.currentPiece = self.pieceProvider.getNext()
         self.goalPiece = self.setGoalPiece()
         self.prevPiece = self.currentPiece.copy()
     
@@ -179,3 +178,8 @@ class Game:
                 return False
         return True
     
+    
+    def calculate_piece_accuracy(self):
+        current_points = self.currentPiece.getCurrentPoints()
+        goal_points = self.goalPiece.getCurrentPoints()
+        return sum([1 for i in range(len(current_points)) if current_points[i] == goal_points[i]]) / len(current_points)

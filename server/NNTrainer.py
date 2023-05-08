@@ -23,11 +23,26 @@ plt.ion() # Maybe remove??
 
 class NNTrainer:
     
-    def __init__(self):
+    def __init__(self,
+                 batch_size,
+                 gamma,
+                 eps_start,
+                 eps_end,
+                 eps_decay,
+                 tau,
+                 learning_rate,
+                 n_hiddens_per_layer,
+                 num_episodes
+                 ):
         
         # if GPU is to be used
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(self.device)
+        
+        if torch.cuda.is_available():
+            self.num_episodes = 6000
+        else:
+            self.num_episodes = num_episodes
         
         self.game = Game()
         
@@ -38,20 +53,20 @@ class NNTrainer:
         # EPS_DECAY controls the rate of exponential decay of epsilon, higher means a slower decay
         # TAU is the update rate of the target network
         # LR is the learning rate of the ``AdamW`` optimizer
-        self.BATCH_SIZE = 128
-        self.GAMMA = 0.99
-        self.EPS_START = 0.9
-        self.EPS_END = 0.05
-        self.EPS_DECAY = 1000
-        self.TAU = 0.005
-        self.LR = 1e-4
+        self.BATCH_SIZE = batch_size
+        self.GAMMA = gamma
+        self.EPS_START = eps_start
+        self.EPS_END = eps_end
+        self.EPS_DECAY = eps_decay
+        self.TAU = tau
+        self.LR = learning_rate
 
         self.n_actions = 5 # Number of possible actions
         # Get the number of state observations
         self.state = self.game.reset()
         # self.state, self.info = env.reset()
         self.n_observations = len(self.state)
-        self.n_hiddens_per_layer = [512, 256, 128]
+        self.n_hiddens_per_layer = n_hiddens_per_layer
 
         self.policy_net = DQN(self.n_observations, self.n_hiddens_per_layer, self.n_actions).to(self.device)
         self.target_net = DQN(self.n_observations, self.n_hiddens_per_layer, self.n_actions).to(self.device)
@@ -66,6 +81,7 @@ class NNTrainer:
         
         self.episode_durations = []
         self.loss_trace = []
+        self.accuracy_trace = []
 
 
     def select_action(self, state, no_random=False):
@@ -188,12 +204,8 @@ class NNTrainer:
       
       
     def train(self):
-        if torch.cuda.is_available():
-            num_episodes = 6000
-        else:
-            num_episodes = 1000
 
-        for i_episode in range(num_episodes):
+        for i_episode in range(self.num_episodes):
             # Initialize the environment and get it's state
             state = self.game.reset()
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
@@ -234,9 +246,14 @@ class NNTrainer:
                     break
 
         print('Complete')
+        finalFig = plt.subplot(1,3,1).figure
         self.plot_all(show_result=True)
         plt.ioff()
         plt.show()
+        finalFig.tight_layout(pad=0.1)
+        finalFig.set_figwidth(25)
+        finalFig.set_figheight(10)
+        finalFig.savefig("./figures/allPlots.png")
         
     def use(self):
         state = self.game.reset()
@@ -281,3 +298,11 @@ class NNTrainer:
             display.clear_output(wait=True)
         else:
             display.display(plt.gcf())
+            
+    def save_model(self, file_path):
+        torch.save(self.policy_net.state_dict(), file_path)
+
+    def load_model(self, file_path):
+        self.policy_net.load_state_dict(torch.load(file_path))
+        self.policy_net.eval()
+        self.target_net.load_state_dict(self.policy_net.state_dict())

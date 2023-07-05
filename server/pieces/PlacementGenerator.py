@@ -11,7 +11,6 @@ def generateValidPlacements(board, piece):
 
 def pieceFits(board, piece, x, y, orientation):
     landed = False
-    board.printBoard()
     for point in piece.getPoints(x,y,orientation):
         if not board.inBoard(point.y, point.x) or board.filled(point.y, point.x):
             return False

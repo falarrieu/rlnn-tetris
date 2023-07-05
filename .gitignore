@@ -128,3 +128,7 @@ yarn-error.log*
 
 .venv
 */__pycache__
+*.pyc
+/server/*.png
+/server/*/*.png
+*.npy

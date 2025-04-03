@@ -6,7 +6,7 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
 
-from Board import Board
+from Board import Board, createAnimations
 from pieces import PieceProvider
 from pieces import PlacementGenerator
 
@@ -75,8 +75,8 @@ class Problem(object):
         valid_placements = PlacementGenerator.generateValidPlacements(board, first_piece)
 
         for valid in valid_placements:
-            board_copy = copy.copy(board)
-            piece_copy = copy.copy(first_piece)
+            board_copy = board.copy()
+            piece_copy = copy.deepcopy(first_piece)
             piece_copy.setPosition(valid)
             lines_cleared = board_copy.placePiece(piece_copy)
 
@@ -90,12 +90,8 @@ def astar_graph_search(problem: Problem, ucs_flag=False):
     start_state = problem.initial_state
     
     fringe = PriorityQueue()
-    # closed = set()
-    
     fringe.put(PrioritizedItem(0, start_state)) # Initialize with start state
     
-    first_run = True
-
     best = None
     best_value = 0
 
@@ -104,35 +100,24 @@ def astar_graph_search(problem: Problem, ucs_flag=False):
     while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
 
-        # print("searched state")
-        if counter % 100 == 0:
-            print(f'iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
-        counter += 1
+    #     if counter % 100 == 0:
+    #         print(f'iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
+    #     counter += 1
         
-        # If that wasn't the goal, expand this node and insert it's states into the queue
+    #     # If that wasn't the goal, expand this node and insert it's states into the queue
         successors = problem.get_successors(node)
         
         for option in successors:
-            # flattened = tuple(option.board.flatten())
-
-            # if flattened in closed:
-            #     continue # We've already seen this board state, just move to next option
-                
-            # closed.add(flattened)
-            
-            # f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
 
             heuristic = problem.heuristic(option)
-
             if len(option.piece_list) == 0: 
-                if heuristic > best_value:
+                if heuristic > best_value or best == None:
                     best_value = heuristic
                     best = option
             else:
                 fringe.put(PrioritizedItem(0, option))
     
     print(f'Final for step: iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
-
 
     return best
 
@@ -164,7 +149,9 @@ if __name__ == "__main__":
 
     lines_cleared = 0
 
-    for i in range(10):
+    frames = []
+
+    for i in range(100):
         search = Problem()
 
         search.set_initial_state(current_board, pieces)
@@ -178,3 +165,8 @@ if __name__ == "__main__":
         # current_board.showBoard()
 
         pieces = pieces[1:] + [piece_provider.getNext()]
+
+        frames.append(current_board.copy())
+
+
+    createAnimations(frames)

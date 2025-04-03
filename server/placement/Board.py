@@ -33,26 +33,6 @@ class Board:
             plt.imshow(self.board, cmap=gray_map.reversed(), vmin=0, vmax=1)
             plt.show()
     
-    
-    def createAnimations(self, frames, trial_num):
-        fig, ax = plt.subplots()
-        gray_map=plt.cm.get_cmap('gray')
-        im  = ax.imshow(self.board * 2, cmap=gray_map.reversed(), vmin=0, vmax=2)
-
-        def frameUpdate(frame):
-            if frame[1] is not None:
-                board = self.board * 2
-                for point in frame[1].getCurrentPoints():
-                    board[point.y, point.x] = 2
-            for point in frame[2].getCurrentPoints():
-                    board[point.y, point.x] = 1
-            im.set_data(board)
-            ax.set_title('Trial %d' % frame[3])  
-
-        ani = FuncAnimation(fig, frameUpdate, frames=frames, interval=50)
-        fileName = 'tetrisTrial%d.mp4' % trial_num
-        ani.save(filename=fileName, dpi=100)
-    
     def filled(self, row, col):
         return self.board[row][col] == 1
     
@@ -67,8 +47,7 @@ class Board:
             if not self.inBoard(point.y, point.x) or self.filled(point.y, point.x):
                 return False
         return True
-    
-        
+       
     def placePiece(self, piece):
         points = piece.getCurrentPoints()
         for point in points:
@@ -105,7 +84,6 @@ class Board:
         self.board = np.array(new_board)
         return lines_cleared
 
-
     def testBoard(self):   
         self.board = np.array([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
@@ -129,7 +107,6 @@ class Board:
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0,],
             [0, 0, 0, 0, 0, 0, 0, 1, 0, 0,]])
         pass
-
 
     def bruteRandomFrame(self, verbose=False):
         board = self.board.copy()
@@ -168,3 +145,18 @@ class Board:
 
         return board
     
+def createAnimations(frames):
+    fig, ax = plt.subplots()
+    gray_map = plt.cm.get_cmap('gray')
+
+    # Initialize with the first frame
+    im = ax.imshow(frames[0].board, cmap=gray_map.reversed(), vmin=0, vmax=1)
+
+    def frameUpdate(i):
+        board = frames[i].board
+        im.set_data(board)
+        ax.set_title(f'Frame {i}')
+
+    ani = FuncAnimation(fig, frameUpdate, frames=len(frames), interval=200)
+    ani.save('tetris_animation.gif', dpi=100, writer='pillow')
+    plt.close()

@@ -6,6 +6,9 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
 
+from Board import Board
+from pieces import PieceProvider
+
 RANDOMIZE_STEPS = 50 # This can be tweaked to increase/decrease the difficulty
 
 # Taken from python docs
@@ -15,9 +18,11 @@ class PrioritizedItem:
     item: Any=field(compare=False)
 
 class Node(object):
-    def __init__(self, board, trace = []):
+    def __init__(self, board, piece, next_piece, trace = []):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
+        self.piece = piece
+        self.next_piece = next_piece
         self.trace : list[tuple[int, int]] = trace
         
     def get_plan(self):
@@ -30,24 +35,16 @@ class Node(object):
 
 class Problem(object):
     def __init__(self):
+        self.piece_provider = PieceProvider()
         self.set_initial_state()
     
     def set_initial_state(self):
-        self.initial_state = np.reshape(np.arange(0, 16), (4, 4))
-        
-        # Randomize board (by performing random actions so it is solvable)
-        # (see. https://math.stackexchange.com/a/754829)
-        random.seed(12345)
-        
-        current = Node(self.initial_state)
-        for i in range(RANDOMIZE_STEPS):
-            options = self.get_successors(current)
-            
-            current = random.choice(options)
-        
-        self.initial_state = current.board
-        
-        # print(self.initial_state)
+        """The initial state for tetris is just the board and random piece.""" 
+        board = Board()
+        piece = self.piece_provider.getNext()
+        next_piece = self.piece_provider.getNext()
+        current = Node(board=board, piece=piece, next_piece=next_piece)
+        self.initial_state = current
 
     def is_goal(self, state):
         """ Checks if this state has been "won".
@@ -148,17 +145,17 @@ if __name__ == "__main__":
     ### DO NOT CHANGE THE CODE BELOW ###
     import time
     problem = Problem()
-    start = time.time()
-    node = astar_graph_search(problem)
-    print("Time taken: ", time.time() - start)
-    print("Plan: ", node.get_plan())
-    print("Path Cost: ", node.get_path_cost())
-    # UCS search
-    start = time.time()
-    node = astar_graph_search(problem, ucs_flag=True)
-    print("Time taken: ", time.time() - start)
-    print("Plan: ", node.get_plan())
-    print("Path Cost: ", node.get_path_cost())
+    # start = time.time()
+    # node = astar_graph_search(problem)
+    # print("Time taken: ", time.time() - start)
+    # print("Plan: ", node.get_plan())
+    # print("Path Cost: ", node.get_path_cost())
+    # # UCS search
+    # start = time.time()
+    # node = astar_graph_search(problem, ucs_flag=True)
+    # print("Time taken: ", time.time() - start)
+    # print("Plan: ", node.get_plan())
+    # print("Path Cost: ", node.get_path_cost())
 
 
 

@@ -1,5 +1,5 @@
 from pieces import Tetromino
-from server.placement.pieces.Vector import Vector
+from .Vector import Vector
 
 class S(Tetromino):
     def __init__(self, x, y, orientation=0) -> None:

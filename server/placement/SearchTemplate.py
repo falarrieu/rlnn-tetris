@@ -24,7 +24,7 @@ class Node(object):
     def __init__(self, board, pieces, trace = []):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
-        self.peice_list = pieces
+        self.piece_list = pieces
         self.trace : list[tuple[int, int]] = trace
         
     def get_plan(self):
@@ -43,8 +43,8 @@ class Problem(object):
     def set_initial_state(self):
         """The initial state for tetris is just the board and random piece.""" 
         board = Board()
-        peices = [self.piece_provider.getNext() for i in range(2)]
-        current = Node(board=board, pieces = peices)
+        pieces = [self.piece_provider.getNext() for i in range(2)]
+        current = Node(board=board, pieces = pieces)
         self.initial_state = current
 
     def is_goal(self, state):
@@ -81,7 +81,7 @@ class Problem(object):
     def get_successors(self, node : Node):
         """"""
         board = node.board
-        pieces = node.peice_list
+        pieces = node.piece_list
 
         if len(pieces) == 0:
             return []

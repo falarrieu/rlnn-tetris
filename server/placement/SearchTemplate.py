@@ -51,7 +51,6 @@ class Problem(object):
         """ Checks if this state has been "won".
             In this case, that means every tile is in order from 0..16 (or however large the puzzle is)
         """
-
         return False # We never hit the goal
         
     def heuristic(self, state, ucs_flag=False):
@@ -60,23 +59,14 @@ class Problem(object):
         else:
             return self.your_heuristic_function(state)
             
-    def your_heuristic_function(self, state):
-        # We'll calculate the manhattan distance between each tile's position, and where it should be
-        total = 0
-        
-        for y, row in enumerate(state):
-            for x, i in enumerate(row):
-                # Calculate where tile *should* be
+    def your_heuristic_function(self, state : Node):
+        """Count the number of holes and lines cleared"""
+        board = state.board
+
+        holes = board.countHoles()
+        lines = board.linesCleared()
                 
-                correct_pos = np.array((int(i / 4), i % 4))
-                
-                currentPosition = np.array((y, x))
-                
-                total += np.sum(np.abs(currentPosition - correct_pos))
-                
-                # print(correct_pos, currentPosition, total)
-        
-        return total
+        return lines - holes
 
     def get_successors(self, node : Node):
         """"""
@@ -130,7 +120,7 @@ def astar_graph_search(problem: Problem, ucs_flag=False):
             
             # f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
 
-            heuristic = problem.heuristic(option.board)
+            heuristic = problem.heuristic(option)
 
             if len(option.piece_list) == 0: 
                 if heuristic > best_value:

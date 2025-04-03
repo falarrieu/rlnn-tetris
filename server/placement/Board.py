@@ -75,6 +75,35 @@ class Board:
             y, x = point.getLocation()
             self.board[x][y] = 1
 
+    def countHoles(self):
+        holes = 0
+        for col in range(self.width):
+            block_found = False
+            for row in range(self.height):
+                if self.board[row][col] == 1:
+                    block_found = True
+                elif self.board[row][col] == 0 and block_found:
+                    holes += 1
+        return holes
+    
+    def linesCleared(self):
+        new_board = []
+        lines_cleared = 0
+
+        for row in self.board:
+            if np.all(row == 1):
+                lines_cleared += 1  # full line found
+            else:
+                new_board.append(row)  # keep incomplete lines
+
+        # Add empty rows at the top
+        while len(new_board) < self.height:
+            new_board.insert(0, np.zeros(self.width))
+
+        self.board = np.array(new_board)
+        return lines_cleared
+
+
     def testBoard(self):   
         self.board = np.array([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],

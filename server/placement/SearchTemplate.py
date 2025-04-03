@@ -21,7 +21,7 @@ class Node(object):
     def __init__(self, board, pieces, trace = []):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
-        self.peice_list = []
+        self.peice_list = pieces
         self.trace : list[tuple[int, int]] = trace
         
     def get_plan(self):

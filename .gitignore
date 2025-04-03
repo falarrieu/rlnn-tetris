@@ -127,6 +127,7 @@ yarn-debug.log*
 yarn-error.log*
 
 .venv
+venv/
 */*/venv
 */__pycache__
 *.pyc

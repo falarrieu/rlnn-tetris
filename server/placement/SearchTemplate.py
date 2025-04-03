@@ -12,8 +12,6 @@ from pieces import PlacementGenerator
 
 import copy
 
-RANDOMIZE_STEPS = 50 # This can be tweaked to increase/decrease the difficulty
-
 # Taken from python docs
 @dataclass(order=True)
 class PrioritizedItem:
@@ -21,10 +19,11 @@ class PrioritizedItem:
     item: Any=field(compare=False)
 
 class Node(object):
-    def __init__(self, board, pieces, trace = []):
+    def __init__(self, board, pieces, trace = [], lines_cleared = 0):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
         self.piece_list = pieces
+        self.lines_cleared = lines_cleared
         self.trace : list[tuple[int, int]] = trace
         
     def get_plan(self):
@@ -37,21 +36,15 @@ class Node(object):
 
 class Problem(object):
     def __init__(self):
-        self.piece_provider = PieceProvider()
-        self.set_initial_state()
+        # self.set_initial_state()
+        pass
     
-    def set_initial_state(self):
+    def set_initial_state(self, curBoard: Board, nextPieces):
         """The initial state for tetris is just the board and random piece.""" 
-        board = Board()
-        pieces = [self.piece_provider.getNext() for i in range(2)]
+        board = curBoard
+        pieces = nextPieces
         current = Node(board=board, pieces = pieces)
         self.initial_state = current
-
-    def is_goal(self, state):
-        """ Checks if this state has been "won".
-            In this case, that means every tile is in order from 0..16 (or however large the puzzle is)
-        """
-        return False # We never hit the goal
         
     def heuristic(self, state, ucs_flag=False):
         if ucs_flag:
@@ -64,7 +57,8 @@ class Problem(object):
         board = state.board
 
         holes = board.countHoles()
-        lines = board.linesCleared()
+        # lines = board.linesCleared()
+        lines = state.lines_cleared
                 
         return lines - holes
 
@@ -84,8 +78,9 @@ class Problem(object):
             board_copy = copy.copy(board)
             piece_copy = copy.copy(first_piece)
             piece_copy.setPosition(valid)
-            board_copy.placePiece(piece_copy)
-            successor = Node(board_copy, pieces[:1])
+            lines_cleared = board_copy.placePiece(piece_copy)
+
+            successor = Node(board_copy, pieces[1:], node.trace + [piece_copy], lines_cleared + node.lines_cleared)
             successors.append(successor)
 
         return successors
@@ -104,8 +99,15 @@ def astar_graph_search(problem: Problem, ucs_flag=False):
     best = None
     best_value = 0
 
-    while len(fringe) > 1 and not first_run:
+    counter = 0
+
+    while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
+
+        # print("searched state")
+        if counter % 100 == 0:
+            print(f'iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
+        counter += 1
         
         # If that wasn't the goal, expand this node and insert it's states into the queue
         successors = problem.get_successors(node)
@@ -128,29 +130,51 @@ def astar_graph_search(problem: Problem, ucs_flag=False):
                     best = option
             else:
                 fringe.put(PrioritizedItem(0, option))
-
-            
-        first_run = False
     
+    print(f'Final for step: iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
+
+
     return best
 
     
 
 if __name__ == "__main__":
-    ### DO NOT CHANGE THE CODE BELOW ###
-    import time
-    problem = Problem()
-    start = time.time()
-    node = astar_graph_search(problem)
-    # print("Time taken: ", time.time() - start)
-    # print("Plan: ", node.get_plan())
-    # print("Path Cost: ", node.get_path_cost())
-    # # UCS search
+    # ### DO NOT CHANGE THE CODE BELOW ###
+    # import time
+    # problem = Problem()
     # start = time.time()
-    # node = astar_graph_search(problem, ucs_flag=True)
-    # print("Time taken: ", time.time() - start)
-    # print("Plan: ", node.get_plan())
-    # print("Path Cost: ", node.get_path_cost()),
+    # node = astar_graph_search(problem)
+    # # print("Time taken: ", time.time() - start)
+    # # print("Plan: ", node.get_plan())
+    # # print("Path Cost: ", node.get_path_cost())
+    # # # UCS search
+    # # start = time.time()
+    # # node = astar_graph_search(problem, ucs_flag=True)
+    # # print("Time taken: ", time.time() - start)
+    # # print("Plan: ", node.get_plan())
+    # # print("Path Cost: ", node.get_path_cost()),
 
 
+    piece_provider = PieceProvider()
 
+
+    pieces = [piece_provider.getNext() for i in range(2)] # Generate first two pieces
+
+    current_board = Board()
+
+    lines_cleared = 0
+
+    for i in range(10):
+        search = Problem()
+
+        search.set_initial_state(current_board, pieces)
+
+        best_state = astar_graph_search(search)
+
+        next_action = best_state.get_plan()[0]
+
+        lines_cleared += current_board.placePiece(next_action)
+
+        # current_board.showBoard()
+
+        pieces = pieces[1:] + [piece_provider.getNext()]

@@ -75,6 +75,8 @@ class Board:
             y, x = point.getLocation()
             self.board[x][y] = 1
 
+        return self.linesCleared()
+
     def countHoles(self):
         holes = 0
         for col in range(self.width):

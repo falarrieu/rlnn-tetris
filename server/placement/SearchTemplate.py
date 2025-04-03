@@ -18,11 +18,10 @@ class PrioritizedItem:
     item: Any=field(compare=False)
 
 class Node(object):
-    def __init__(self, board, piece, next_piece, trace = []):
+    def __init__(self, board, pieces, trace = []):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
-        self.piece = piece
-        self.next_piece = next_piece
+        self.peice_list = []
         self.trace : list[tuple[int, int]] = trace
         
     def get_plan(self):
@@ -41,20 +40,16 @@ class Problem(object):
     def set_initial_state(self):
         """The initial state for tetris is just the board and random piece.""" 
         board = Board()
-        piece = self.piece_provider.getNext()
-        next_piece = self.piece_provider.getNext()
-        current = Node(board=board, piece=piece, next_piece=next_piece)
+        peices = [self.piece_provider.getNext() for i in range(2)]
+        current = Node(board=board, pieces = peices)
         self.initial_state = current
 
     def is_goal(self, state):
         """ Checks if this state has been "won".
             In this case, that means every tile is in order from 0..16 (or however large the puzzle is)
         """
-        for i, val in enumerate(state.flatten()):
-            if i != val:
-                return False
-        
-        return True
+
+        return False # We never hit the goal
         
     def heuristic(self, state, ucs_flag=False):
         if ucs_flag:
@@ -155,7 +150,7 @@ if __name__ == "__main__":
     # node = astar_graph_search(problem, ucs_flag=True)
     # print("Time taken: ", time.time() - start)
     # print("Plan: ", node.get_plan())
-    # print("Path Cost: ", node.get_path_cost())
+    # print("Path Cost: ", node.get_path_cost()),
 
 
 

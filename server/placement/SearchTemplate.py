@@ -105,30 +105,46 @@ def astar_graph_search(problem: Problem, ucs_flag=False):
     start_state = problem.initial_state
     
     fringe = PriorityQueue()
-    closed = set()
+    # closed = set()
     
     fringe.put(PrioritizedItem(0, start_state)) # Initialize with start state
     
-    while not fringe.empty():
+    first_run = True
+
+    best = None
+    best_value = 0
+
+    while len(fringe) > 1 and not first_run:
         node = fringe.get().item # Grab next lowest state
-        
-        if problem.is_goal(node.board):
-            return node
         
         # If that wasn't the goal, expand this node and insert it's states into the queue
         successors = problem.get_successors(node)
         
         for option in successors:
-            flattened = tuple(option.board.flatten())
+            # flattened = tuple(option.board.flatten())
 
-            if flattened in closed:
-                continue # We've already seen this board state, just move to next option
+            # if flattened in closed:
+            #     continue # We've already seen this board state, just move to next option
                 
-            closed.add(flattened)
+            # closed.add(flattened)
             
-            f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
+            # f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
+
+            heuristic = problem.heuristic(option.board)
+
+            if len(option.piece_list) == 0: 
+                if heuristic > best_value:
+                    best_value = heuristic
+                    best = option
+            else:
+                fringe.put(PrioritizedItem(0, option))
+
             
-            fringe.put(PrioritizedItem(f_value, option))
+        first_run = False
+    
+    return best
+
+    
 
 if __name__ == "__main__":
     ### DO NOT CHANGE THE CODE BELOW ###

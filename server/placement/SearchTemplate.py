@@ -10,6 +10,8 @@ from Board import Board
 from pieces import PieceProvider
 from pieces import PlacementGenerator
 
+import copy
+
 RANDOMIZE_STEPS = 50 # This can be tweaked to increase/decrease the difficulty
 
 # Taken from python docs
@@ -77,39 +79,30 @@ class Problem(object):
         return total
 
     def get_successors(self, node : Node):
-        # There are 4 actions we can take. Since this is a slide puzzle you could think about
-        # it like moving the "empty" piece up, down, left, or right, swapping it with whatever piece was previously
-        # in that position. It's important to note that we can never move the empty slot off the board
-        
+        """"""
         board = node.board
-        
-        pos = np.hstack(np.array(np.where(board == 0))) # Get position of empty tile
-        
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)] # All the different directions
-        
+        pieces = node.peice_list
+
+        if len(pieces) == 0:
+            return []
+        first_piece = pieces[0]
+
         successors = []
-        
-        for direction in directions:
-            position = pos + np.array(direction) 
-            
-            # Make sure this position is valid
-            if not (0 <= position[0] < len(board)):
-                continue
-            if not (0 <= position[1] < len(board[0])):
-                continue
-            
-            # Create a new board with pieces swapped in that direction
-            new_board = np.copy(board)
-            new_board[pos[0], pos[1]] = new_board[position[0], position[1]]
-            new_board[position[0], position[1]] = 0 # This is where our empty tile is now
-        
-            successors.append(Node(new_board, node.trace + [direction]))
-        
+        valid_placements = PlacementGenerator.generateValidPlacements(board, first_piece)
+
+        for valid in valid_placements:
+            board_copy = copy.copy(board)
+            piece_copy = copy.copy(first_piece)
+            piece_copy.setPosition(valid)
+            board_copy.placePiece(piece_copy)
+            successor = Node(board_copy, pieces[:1])
+            successors.append(successor)
+
         return successors
             
 
 def astar_graph_search(problem: Problem, ucs_flag=False):
-    start_state = Node(problem.initial_state)
+    start_state = problem.initial_state
     
     fringe = PriorityQueue()
     closed = set()
@@ -141,8 +134,8 @@ if __name__ == "__main__":
     ### DO NOT CHANGE THE CODE BELOW ###
     import time
     problem = Problem()
-    # start = time.time()
-    # node = astar_graph_search(problem)
+    start = time.time()
+    node = astar_graph_search(problem)
     # print("Time taken: ", time.time() - start)
     # print("Plan: ", node.get_plan())
     # print("Path Cost: ", node.get_path_cost())

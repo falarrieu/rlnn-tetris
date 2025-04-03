@@ -9,7 +9,6 @@ class Board:
         self.width = 10
         self.height = 20
         self.board = np.zeros((self.height, self.width))
-        self.goalPiece = None
         pass
         
     def copy(self):
@@ -21,9 +20,6 @@ class Board:
         print(self.board.shape)
         print(self.board)
         pass
-
-    def setGoalPiece(self, piece):
-        self.goalPiece = piece
 
     def showBoard(self, piece=None):
         gray_map=plt.cm.get_cmap('gray')
@@ -71,6 +67,13 @@ class Board:
             if not self.inBoard(point.y, point.x) or self.filled(point.y, point.x):
                 return False
         return True
+    
+        
+    def placePiece(self, piece):
+        points = piece.getCurrentPoints()
+        for point in points:
+            y, x = point.getLocation()
+            self.board[x][y] = 1
 
     def testBoard(self):   
         self.board = np.array([

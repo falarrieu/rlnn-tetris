@@ -8,6 +8,7 @@ from typing import Any
 
 from Board import Board
 from pieces import PieceProvider
+from pieces import PlacementGenerator
 
 RANDOMIZE_STEPS = 50 # This can be tweaked to increase/decrease the difficulty
 

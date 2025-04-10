@@ -15,9 +15,11 @@ class PrioritizedItem:
     item: Any=field(compare=False)
 
 class PositionNode(object):
-    def __init__(self, board, trace = []):
+    def __init__(self, board, current_piece, valid_placement, trace = []):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
+        self.current_piece = current_piece
+        self.valid_placement = valid_placement
         self.trace : list[tuple[int, int]] = trace
 
     def get_plan(self):
@@ -37,9 +39,7 @@ class ValidPlacementProblem(object):
 
     def set_initial_state(self):
         # Create the first node
-        
-        pass
-
+        self.intial_state = PositionNode(self.board, self.current_piece, self.valid_placement)
 
     def is_goal(self, state):
         """ Checks if this state has been "won".

@@ -6,6 +6,10 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
 
+from Board import Board, createAnimations
+from pieces import PieceProvider
+from pieces import PlacementGenerator
+
 RANDOMIZE_STEPS = 50 # This can be tweaked to increase/decrease the difficulty
 
 # Taken from python docs
@@ -149,6 +153,8 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
     while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
 
+        print(f"Dealing with piece x: {node.current_piece.x}, y: {node.current_piece.y}, or: {node.current_piece.orientation}")
+
         if problem.is_goal(node):
             return node
 
@@ -168,3 +174,30 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
             fringe.put(PrioritizedItem(f_value, option))
 
     return None
+
+if __name__ == "__main__":
+    ### DO NOT CHANGE THE CODE BELOW ###
+    import time
+
+    board = Board()
+
+    piece_provider = PieceProvider()
+    piece = piece_provider.getNext()
+
+    target = PlacementGenerator.generateValidPlacements(board, piece)[0]
+
+    target_piece = piece.copy()
+    target_piece.setPosition(target)
+
+    problem = ValidPlacementProblem(board, piece, target_piece)
+    start = time.time()
+    node = validity_astar_graph_search(problem)
+    print("Time taken: ", time.time() - start)
+    print("Plan: ", node.get_plan())
+    print("Path Cost: ", node.get_path_cost())
+    # UCS search
+    # start = time.time()
+    # node = astar_graph_search(problem, ucs_flag=True)
+    # print("Time taken: ", time.time() - start)
+    # print("Plan: ", node.get_plan())
+    # print("Path Cost: ", node.get_path_cost())

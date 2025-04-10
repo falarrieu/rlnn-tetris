@@ -5,6 +5,8 @@ from enum import Enum
 import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
+import time
+import json
 
 from Board import Board, createAnimations
 from pieces import PieceProvider
@@ -12,7 +14,11 @@ from pieces import PlacementGenerator
 
 from ValiditySearch import ValidPlacementProblem, validity_astar_graph_search
 
+import cProfile
+import pstats
+
 import copy
+
 
 # Taken from python docs
 @dataclass(order=True)
@@ -94,8 +100,6 @@ class Problem(object):
             successor = Node(board_copy, pieces[1:], node.trace + [piece_copy], lines_cleared + node.lines_cleared)
             successors.append(successor)
 
-        print(f'Valid Placements: {len(valid_placements)}, Valid Successors: {len(successors)}')
-
         return successors
             
 
@@ -113,11 +117,6 @@ def piece_search(problem: Problem, ucs_flag=False):
     while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
 
-    #     if counter % 100 == 0:
-    #         print(f'iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
-    #     counter += 1
-        
-    #     # If that wasn't the goal, expand this node and insert it's states into the queue
         successors = problem.get_successors(node)
         
         for option in successors:
@@ -136,25 +135,11 @@ def piece_search(problem: Problem, ucs_flag=False):
 
     
 
-if __name__ == "__main__":
-    # ### DO NOT CHANGE THE CODE BELOW ###
-    # import time
-    # problem = Problem()
-    # start = time.time()
-    # node = astar_graph_search(problem)
-    # # print("Time taken: ", time.time() - start)
-    # # print("Plan: ", node.get_plan())
-    # # print("Path Cost: ", node.get_path_cost())
-    # # # UCS search
-    # # start = time.time()
-    # # node = astar_graph_search(problem, ucs_flag=True)
-    # # print("Time taken: ", time.time() - start)
-    # # print("Plan: ", node.get_plan())
-    # # print("Path Cost: ", node.get_path_cost()),
-
+if __name__ == "__main__":    
+    # profiler = cProfile.Profile()
+    # profiler.enable()
 
     piece_provider = PieceProvider()
-
 
     pieces = [piece_provider.getNext() for i in range(2)] # Generate first two pieces
 
@@ -164,7 +149,8 @@ if __name__ == "__main__":
 
     frames = []
 
-    for i in range(50):
+    start = time.time()
+    for i in range(10):
         search = Problem()
 
         search.set_initial_state(current_board, pieces)
@@ -175,11 +161,20 @@ if __name__ == "__main__":
 
         lines_cleared += current_board.placePiece(next_action)
 
-        # current_board.showBoard()
-
         pieces = pieces[1:] + [piece_provider.getNext()]
 
-        frames.append((current_board.copy(), lines_cleared))
+        frames.append({
+            "board": current_board.to_dict(),
+            "lines_cleared": lines_cleared
+        })
 
+        print("Time taken: ", time.time() - start)
 
-    createAnimations(frames)
+    with open("frames.json", "w") as f:
+        json.dump(frames, f)
+
+    # createAnimations(frames)
+
+    # profiler.disable()
+    # stats = pstats.Stats(profiler)
+    # stats.sort_stats('cumulative').print_stats(10)

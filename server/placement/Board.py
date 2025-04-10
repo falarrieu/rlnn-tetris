@@ -145,6 +145,18 @@ class Board:
 
         return board
     
+    def to_dict(self):
+        return {
+            "board": self.board.tolist()
+        }
+
+    @staticmethod
+    def from_dict(data):
+        board = Board()
+        board.board = np.array(data["board"])
+        return board
+
+
 def createAnimations(frames):
     fig, ax = plt.subplots()
     gray_map = plt.cm.get_cmap('gray')
@@ -162,3 +174,5 @@ def createAnimations(frames):
     ani = FuncAnimation(fig, frameUpdate, frames=len(frames), interval=200)
     ani.save('tetris_animation.gif', dpi=100, writer='pillow')
     plt.close()
+
+    

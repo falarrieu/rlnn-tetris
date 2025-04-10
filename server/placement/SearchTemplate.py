@@ -86,7 +86,7 @@ class Problem(object):
         return successors
             
 
-def astar_graph_search(problem: Problem, ucs_flag=False):
+def piece_search(problem: Problem, ucs_flag=False):
     start_state = problem.initial_state
     
     fringe = PriorityQueue()

@@ -20,8 +20,6 @@ class PlacementMoves(enum):
     MOVE_UP = 3
     TURN_LEFT = 4
     TURN_RIGHT = 5
-    ROTATE_CC = 6
-    ROTATE_CW = 7
 
 class PositionNode(object):
     def __init__(self, board, current_piece, valid_placement, trace = []):
@@ -51,10 +49,10 @@ class PositionNode(object):
         if a == PlacementMoves.MOVE_RIGHT: # Right
             checkPiece.moveRight()
             pass
-        if a == PlacementMoves.ROTATE_CC: # CC
+        if a == PlacementMoves.TURN_LEFT: # CC
             checkPiece.turnCCW()
             pass
-        if a == PlacementMoves.ROTATE_CW: # CW
+        if a == PlacementMoves.TURN_RIGHT: # CW
             checkPiece.turnCW()
             pass
         if a == PlacementMoves.MOVE_UP: # Up

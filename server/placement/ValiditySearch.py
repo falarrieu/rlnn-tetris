@@ -134,8 +134,6 @@ class ValidPlacementProblem(object):
 
         for action in actions:
 
-            print(action)
-
             new_piece = node.get_successor(action)
             
             if new_piece:
@@ -155,20 +153,14 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
     while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
 
-        # print(f"Dealing with piece x: {node.current_piece.x}, y: {node.current_piece.y}, or: {node.current_piece.orientation}")
-
         if problem.is_goal(node):
             return node
 
         # If that wasn't the goal, expand this node and insert it's states into the queue
         successors = problem.get_successors(node)
 
-        print("start looking")
         for option in successors:
             flattened = (option.current_piece.x, option.current_piece.y, option.current_piece.orientation)
-
-            print(f"position of successor :{flattened}")
-            # print(f"position of successor :{option.trace}")
 
             if flattened in closed:
                 continue # We've already seen this board state, just move to next option

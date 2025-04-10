@@ -39,6 +39,9 @@ class Tetromino:
     
     def moveDown(self, num):
         self.y += num
+
+    def moveUp(self):
+        self.y += 1
     
     def setPosition(self, position):
         self.x = position[0]

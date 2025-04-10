@@ -20,6 +20,8 @@ class PlacementMoves(enum):
     MOVE_UP = 3
     TURN_LEFT = 4
     TURN_RIGHT = 5
+    ROTATE_CC = 6
+    ROTATE_CW = 7
 
 class PositionNode(object):
     def __init__(self, board, current_piece, valid_placement, trace = []):
@@ -39,6 +41,31 @@ class PositionNode(object):
     
     def get_candidate_legal_moves(self):
         last_moves = self.trace[-2:]
+
+    def get_successor(self, a: PlacementMoves):
+        """Compute the next frame according to the action."""
+        checkPiece = self.currentPiece.copy()
+        if a == PlacementMoves.MOVE_LEFT: # Left
+            checkPiece.moveLeft()
+            pass
+        if a == PlacementMoves.MOVE_RIGHT: # Right
+            checkPiece.moveRight()
+            pass
+        if a == PlacementMoves.ROTATE_CC: # CC
+            checkPiece.turnCCW()
+            pass
+        if a == PlacementMoves.ROTATE_CW: # CW
+            checkPiece.turnCW()
+            pass
+        if a == PlacementMoves.MOVE_UP: # Up
+            checkPiece.moveUp()
+            pass
+
+        if self.board.validPlacement(checkPiece):
+            return checkPiece
+        
+        return None
+
 
 class ValidPlacementProblem(object):
     def __init__(self, board, current_piece, valid_placement):
@@ -86,31 +113,19 @@ class ValidPlacementProblem(object):
         return total
 
     def get_successors(self, node : PositionNode):
-        # There are 6 actions we can take. Moving up, left, right, and rotating left or right.
-
         board = node.board
+        valid_placement = node.valid_placement
 
-        pos = np.hstack(np.array(np.where(board == 0))) # Get position of empty tile
-
-        directions = [(-1, 0), (1, 0), (0, -1), (0, 1)] # All the different directions
+        actions = node.candidate_legal_moves()
 
         successors = []
 
-        for direction in directions:
-            position = pos + np.array(direction)
+        for action in actions:
 
-            # Make sure this position is valid
-            if not (0 <= position[0] < len(board)):
-                continue
-            if not (0 <= position[1] < len(board[0])):
-                continue
-
-            # Create a new board with pieces swapped in that direction
-            new_board = np.copy(board)
-            new_board[pos[0], pos[1]] = new_board[position[0], position[1]]
-            new_board[position[0], position[1]] = 0 # This is where our empty tile is now
-
-            successors.append(Node(new_board, node.trace + [direction]))
+            new_piece = node.get_successor(action)
+            
+            if new_piece:
+                successors.append(PositionNode(board, new_piece, valid_placement, trace=node.trace + [action]))
 
         return successors
 

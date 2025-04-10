@@ -22,11 +22,11 @@ class PlacementMoves(enum):
     TURN_RIGHT = 5
 
 class PositionNode(object):
-    def __init__(self, board, current_piece, valid_placement, trace = []):
+    def __init__(self, board, target_piece, current_piece, trace = []):
         ''' Feel free to add any additional arguments you need'''
         self.board = board
+        self.target_piece = target_piece
         self.current_piece = current_piece
-        self.valid_placement = valid_placement
         self.trace : list[tuple[int, int]] = trace
 
     def get_plan(self):
@@ -66,24 +66,24 @@ class PositionNode(object):
 
 
 class ValidPlacementProblem(object):
-    def __init__(self, board, current_piece, valid_placement):
+    def __init__(self, board, target_piece, current_piece):
         self.board = board
+        self.target_piece = target_piece
         self.current_piece = current_piece
-        self.valid_placement = valid_placement
         self.set_initial_state()
 
     def set_initial_state(self):
         # Create the first node
-        self.intial_state = PositionNode(self.board, self.current_piece, self.valid_placement)
+        self.intial_state = PositionNode(self.board, self.target_piece, self.current_piece)
 
     def is_goal(self, node):
         """ Check if nodes current piece and valid placement are in the same position and orientation"""
+        target_piece = node.target_piece
         current_piece = node.current_piece
-        valid_placement = node.valid_placement # (x,y,o)
 
-        if current_piece.x == valid_placement[0]:
-            if current_piece.y == valid_placement[1]:
-                if current_piece.orientation == valid_placement[2]:
+        if current_piece.x == target_piece.x:
+            if current_piece.y == target_piece.y:
+                if current_piece.orientation == target_piece.orientation:
                     return True
 
         return False
@@ -114,7 +114,6 @@ class ValidPlacementProblem(object):
 
     def get_successors(self, node : PositionNode):
         board = node.board
-        valid_placement = node.valid_placement
 
         actions = node.candidate_legal_moves()
 
@@ -125,7 +124,7 @@ class ValidPlacementProblem(object):
             new_piece = node.get_successor(action)
             
             if new_piece:
-                successors.append(PositionNode(board, new_piece, valid_placement, trace=node.trace + [action]))
+                successors.append(PositionNode(board, node.target_piece, new_piece, trace=node.trace + [action]))
 
         return successors
 

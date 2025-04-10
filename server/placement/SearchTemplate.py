@@ -81,7 +81,7 @@ class Problem(object):
             piece_copy = copy.deepcopy(first_piece)
             piece_copy.setPosition(valid)
             
-            valid_placement_problem = ValidPlacementProblem(board, first_piece, valid)
+            valid_placement_problem = ValidPlacementProblem(board, first_piece, first_piece.copy().setPosition(valid))
 
             lines_cleared = board_copy.placePiece(piece_copy)
 

@@ -62,13 +62,13 @@ class Problem(object):
             
     def your_heuristic_function(self, state : Node):
         """Count the number of holes and lines cleared"""
-        board = state.board
+        board: Board = state.board
 
         holes = board.countHoles()
-        # lines = board.linesCleared()
         lines = state.lines_cleared
+        depth = board.get_fully_empty_depth()
                 
-        return lines - holes
+        return lines - holes + depth
 
     def get_successors(self, node : Node):
         """"""

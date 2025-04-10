@@ -164,7 +164,7 @@ if __name__ == "__main__":
 
     frames = []
 
-    for i in range(10):
+    for i in range(50):
         search = Problem()
 
         search.set_initial_state(current_board, pieces)

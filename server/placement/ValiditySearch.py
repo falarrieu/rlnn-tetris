@@ -76,15 +76,17 @@ class ValidPlacementProblem(object):
         # Create the first node
         self.intial_state = PositionNode(self.board, self.current_piece, self.valid_placement)
 
-    def is_goal(self, state):
-        """ Checks if this state has been "won".
-            In this case, that means every tile is in order from 0..16 (or however large the puzzle is)
-        """
-        for i, val in enumerate(state.flatten()):
-            if i != val:
-                return False
+    def is_goal(self, node):
+        """ Check if nodes current piece and valid placement are in the same position and orientation"""
+        current_piece = node.current_piece
+        valid_placement = node.valid_placement # (x,y,o)
 
-        return True
+        if current_piece.x == valid_placement[0]:
+            if current_piece.y == valid_placement[1]:
+                if current_piece.orientation == valid_placement[2]:
+                    return True
+
+        return False
 
     def heuristic(self, state, ucs_flag=False):
         if ucs_flag:
@@ -139,7 +141,7 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
     while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
 
-        if problem.is_goal(node.board):
+        if problem.is_goal(node):
             return node
 
         # If that wasn't the goal, expand this node and insert it's states into the queue

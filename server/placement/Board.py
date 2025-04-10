@@ -67,6 +67,13 @@ class Board:
                     holes += 1
         return holes
     
+    def get_fully_empty_depth(self):
+        for i, row in enumerate(self.board):
+            if np.any(row != 0):
+                return i
+        
+        return self.height
+    
     def linesCleared(self):
         new_board = []
         lines_cleared = 0

@@ -80,8 +80,10 @@ class Problem(object):
             board_copy = board.copy()
             piece_copy = copy.deepcopy(first_piece)
             piece_copy.setPosition(valid)
-            
-            valid_placement_problem = ValidPlacementProblem(board, first_piece, first_piece.copy().setPosition(valid))
+
+            copied_piece = first_piece.copy()
+            copied_piece.setPosition(valid)
+            valid_placement_problem = ValidPlacementProblem(board, first_piece, copied_piece)
             valid_node = validity_astar_graph_search(valid_placement_problem)
 
             if not valid_node:

@@ -156,14 +156,14 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
         successors = problem.get_successors(node)
 
         for option in successors:
-            flattened = tuple(node.current_piece.x, node.current_piece.y, node.current_piece.orientation)
+            flattened = (node.current_piece.x, node.current_piece.y, node.current_piece.orientation)
 
             if flattened in closed:
                 continue # We've already seen this board state, just move to next option
 
             closed.add(flattened)
 
-            f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
+            f_value = option.get_path_cost() + problem.heuristic(option, ucs_flag=ucs_flag)
 
             fringe.put(PrioritizedItem(f_value, option))
 

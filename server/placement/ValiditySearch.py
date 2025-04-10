@@ -14,6 +14,13 @@ class PrioritizedItem:
     priority: int
     item: Any=field(compare=False)
 
+class PlacementMoves(enum):
+    MOVE_LEFT = 1
+    MOVE_RIGHT = 2
+    MOVE_UP = 3
+    TURN_LEFT = 4
+    TURN_RIGHT = 5
+
 class PositionNode(object):
     def __init__(self, board, current_piece, valid_placement, trace = []):
         ''' Feel free to add any additional arguments you need'''
@@ -29,6 +36,9 @@ class PositionNode(object):
     def get_path_cost(self):
         ''' Return the path cost to reach self from the start state'''
         return len(self.trace)
+    
+    def get_candidate_legal_moves(self):
+        last_moves = self.trace[-2:]
 
 class ValidPlacementProblem(object):
     def __init__(self, board, current_piece, valid_placement):

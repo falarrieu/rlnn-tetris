@@ -37,7 +37,7 @@ class PositionNode(object):
         ''' Return the path cost to reach self from the start state'''
         return len(self.trace)
     
-    def get_candidate_legal_moves(self) -> list[PlacementMoves]:
+    def get_candidate_legal_moves(self) -> list[PlacementMoves]:            
         last_moves = self.trace[-2:]
         
         possible_moves = [
@@ -46,6 +46,9 @@ class PositionNode(object):
             PlacementMoves.MOVE_UP, 
             PlacementMoves.TURN_LEFT,
             PlacementMoves.TURN_RIGHT]
+        
+        if len(self.trace) < 2:
+            return possible_moves
 
         if last_moves.count(last_moves[0]) != len(last_moves):
             return possible_moves
@@ -54,7 +57,7 @@ class PositionNode(object):
 
     def get_successor(self, a: PlacementMoves):
         """Compute the next frame according to the action."""
-        checkPiece = self.currentPiece.copy()
+        checkPiece = self.current_piece.copy()
         if a == PlacementMoves.MOVE_LEFT: # Left
             checkPiece.moveLeft()
             pass

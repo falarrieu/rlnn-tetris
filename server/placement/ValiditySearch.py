@@ -86,7 +86,7 @@ class ValidPlacementProblem(object):
 
     def set_initial_state(self):
         # Create the first node
-        self.intial_state = PositionNode(self.board, self.target_piece, self.current_piece)
+        self.initial_state = PositionNode(self.board, self.target_piece, self.current_piece)
 
     def is_goal(self, node):
         """ Check if nodes current piece and valid placement are in the same position and orientation"""
@@ -133,7 +133,7 @@ class ValidPlacementProblem(object):
 
 
 def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
-    start_state = PositionNode(problem.initial_state)
+    start_state = problem.initial_state
 
     fringe = PriorityQueue()
     closed = set()

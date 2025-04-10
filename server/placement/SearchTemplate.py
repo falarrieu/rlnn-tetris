@@ -92,6 +92,8 @@ class Problem(object):
             successor = Node(board_copy, pieces[1:], node.trace + [piece_copy], lines_cleared + node.lines_cleared)
             successors.append(successor)
 
+        print(f'Valid Placements: {len(valid_placements)}, Valid Successors: {len(successors)}')
+
         return successors
             
 
@@ -160,12 +162,12 @@ if __name__ == "__main__":
 
     frames = []
 
-    for i in range(50):
+    for i in range(10):
         search = Problem()
 
         search.set_initial_state(current_board, pieces)
 
-        best_state = astar_graph_search(search)
+        best_state = piece_search(search)
 
         next_action = best_state.get_plan()[0]
 

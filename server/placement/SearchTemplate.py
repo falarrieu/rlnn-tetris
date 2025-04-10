@@ -146,13 +146,19 @@ if __name__ == "__main__":
     frames = []
 
     start = time.time()
-    for i in range(10):
+    for i in range(500):
         search = Problem()
 
         search.set_initial_state(current_board, pieces)
 
         best_state = piece_search(search)
 
+        if not best_state:
+            print("Game Over")
+            with open("frames.json", "w") as f:
+                json.dump(frames, f)
+            break 
+        
         next_action = best_state.get_plan()[0]
 
         lines_cleared += current_board.placePiece(next_action)
@@ -166,9 +172,20 @@ if __name__ == "__main__":
 
         print("Time taken: ", time.time() - start)
 
-    with open("frames.json", "w") as f:
-        json.dump(frames, f)
+        with open("frames.json", "w") as f:
+            json.dump(frames, f)
 
+
+    # with open("frames.json", "r") as f:
+    #     frame_data = json.load(f)
+
+    # # Convert dictionaries back into (Board, lines_cleared) tuples
+    # frames = [
+    #     (Board.from_dict(frame["board"]), frame["lines_cleared"])
+    #     for frame in frame_data
+    # ]
+
+    # # Animate them
     # createAnimations(frames)
 
     # profiler.disable()

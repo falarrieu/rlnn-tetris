@@ -29,25 +29,17 @@ class PositionNode(object):
         return len(self.trace)
 
 class ValidPlacementProblem(object):
-    def __init__(self):
+    def __init__(self, board, current_piece, valid_placement):
+        self.board = board
+        self.current_piece = current_piece
+        self.valid_placement = valid_placement
         self.set_initial_state()
 
     def set_initial_state(self):
-        self.initial_state = np.reshape(np.arange(0, 16), (4, 4))
+        # Create the first node
+        
+        pass
 
-        # Randomize board (by performing random actions so it is solvable)
-        # (see. https://math.stackexchange.com/a/754829)
-        random.seed(12345)
-
-        current = Node(self.initial_state)
-        for i in range(RANDOMIZE_STEPS):
-            options = self.get_successors(current)
-
-            current = random.choice(options)
-
-        self.initial_state = current.board
-
-        # print(self.initial_state)
 
     def is_goal(self, state):
         """ Checks if this state has been "won".

@@ -10,6 +10,8 @@ from Board import Board, createAnimations
 from pieces import PieceProvider
 from pieces import PlacementGenerator
 
+from ValiditySearch import ValidPlacementProblem
+
 import copy
 
 # Taken from python docs
@@ -78,6 +80,9 @@ class Problem(object):
             board_copy = board.copy()
             piece_copy = copy.deepcopy(first_piece)
             piece_copy.setPosition(valid)
+            
+            valid_placement_problem = ValidPlacementProblem(board, first_piece, valid)
+
             lines_cleared = board_copy.placePiece(piece_copy)
 
             successor = Node(board_copy, pieces[1:], node.trace + [piece_copy], lines_cleared + node.lines_cleared)

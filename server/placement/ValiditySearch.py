@@ -27,7 +27,7 @@ class PositionNode(object):
         self.board = board
         self.target_piece = target_piece
         self.current_piece = current_piece
-        self.trace : list[tuple[int, int]] = trace
+        self.trace : list[PlacementMoves] = trace
 
     def get_plan(self):
         ''' Return the plan to reach self from the start state'''
@@ -37,8 +37,20 @@ class PositionNode(object):
         ''' Return the path cost to reach self from the start state'''
         return len(self.trace)
     
-    def get_candidate_legal_moves(self):
+    def get_candidate_legal_moves(self) -> list[PlacementMoves]:
         last_moves = self.trace[-2:]
+        
+        possible_moves = [
+            PlacementMoves.MOVE_LEFT,
+            PlacementMoves.MOVE_RIGHT, 
+            PlacementMoves.MOVE_UP, 
+            PlacementMoves.TURN_LEFT,
+            PlacementMoves.TURN_RIGHT]
+
+        if last_moves.count(last_moves[0]) != len(last_moves):
+            return possible_moves
+
+        return [move for move in possible_moves if last_moves[0] != move]
 
     def get_successor(self, a: PlacementMoves):
         """Compute the next frame according to the action."""
@@ -94,24 +106,15 @@ class ValidPlacementProblem(object):
         else:
             return self.your_heuristic_function(state)
 
-    def your_heuristic_function(self, state):
-        # We'll calculate the manhattan distance between each tile's position, and where it should be
-        total = 0
+    def your_heuristic_function(self, state: PositionNode):
+        # We'll calculate the manhattan distance between the two pieces, as well as adding the abs difference in orientation
 
-        for y, row in enumerate(state):
-            for x, i in enumerate(row):
-                # Calculate where tile *should* be
+        rotation_amt = min((state.target_piece.orientation - state.current_piece.orientation) % 4, (state.current_piece.orientation - state.target_piece.orientation) % 4)
 
-                correct_pos = np.array((int(i / 4), i % 4))
+        h = abs(state.target_piece.x - state.current_piece.x) + abs(state.target_piece.y - state.current_piece.y) + rotation_amt
 
-                currentPosition = np.array((y, x))
-
-                total += np.sum(np.abs(currentPosition - correct_pos))
-
-                # print(correct_pos, currentPosition, total)
-
-        return total
-
+        return h
+    
     def get_successors(self, node : PositionNode):
         board = node.board
 

@@ -118,7 +118,7 @@ class ValidPlacementProblem(object):
     def get_successors(self, node : PositionNode):
         board = node.board
 
-        actions = node.candidate_legal_moves()
+        actions = node.get_candidate_legal_moves()
 
         successors = []
 

@@ -37,7 +37,7 @@ class Board:
         return self.board[row][col] == 1
     
     def inBoard(self, row, col):
-        return row < self.height and col >= 0 and col < self.width 
+        return row < self.height and col >= 0 and col < self.width and row >=0
     
     def getLocation(self, row, col):
         return self.board[row][col]

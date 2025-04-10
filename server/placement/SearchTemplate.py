@@ -112,13 +112,11 @@ def piece_search(problem: Problem, ucs_flag=False):
     best = None
     best_value = 0
 
-    counter = 0
-
     while not fringe.empty():
         node = fringe.get().item # Grab next lowest state
 
         successors = problem.get_successors(node)
-        
+
         for option in successors:
 
             heuristic = problem.heuristic(option)

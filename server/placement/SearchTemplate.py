@@ -151,7 +151,7 @@ if __name__ == "__main__":
 
     frames = []
 
-    for i in range(100):
+    for i in range(50):
         search = Problem()
 
         search.set_initial_state(current_board, pieces)
@@ -166,7 +166,7 @@ if __name__ == "__main__":
 
         pieces = pieces[1:] + [piece_provider.getNext()]
 
-        frames.append(current_board.copy())
+        frames.append((current_board.copy(), lines_cleared))
 
 
     createAnimations(frames)

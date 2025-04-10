@@ -150,12 +150,14 @@ def createAnimations(frames):
     gray_map = plt.cm.get_cmap('gray')
 
     # Initialize with the first frame
-    im = ax.imshow(frames[0].board, cmap=gray_map.reversed(), vmin=0, vmax=1)
+    im = ax.imshow(frames[0][0].board, cmap=gray_map.reversed(), vmin=0, vmax=1)
 
     def frameUpdate(i):
-        board = frames[i].board
+        board = frames[i][0].board
         im.set_data(board)
         ax.set_title(f'Frame {i}')
+        ax.set_ylabel(f'Lines Cleared: {frames[i][1]}', rotation=0)
+
 
     ani = FuncAnimation(fig, frameUpdate, frames=len(frames), interval=200)
     ani.save('tetris_animation.gif', dpi=100, writer='pillow')

@@ -14,7 +14,7 @@ class PrioritizedItem:
     priority: int
     item: Any=field(compare=False)
 
-class PlacementMoves(enum):
+class PlacementMoves(Enum):
     MOVE_LEFT = 1
     MOVE_RIGHT = 2
     MOVE_UP = 3
@@ -160,19 +160,3 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
             f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
 
             fringe.put(PrioritizedItem(f_value, option))
-
-if __name__ == "__main__":
-    ### DO NOT CHANGE THE CODE BELOW ###
-    import time
-    problem = Problem()
-    start = time.time()
-    node = astar_graph_search(problem)
-    print("Time taken: ", time.time() - start)
-    print("Plan: ", node.get_plan())
-    print("Path Cost: ", node.get_path_cost())
-    # UCS search
-    start = time.time()
-    node = astar_graph_search(problem, ucs_flag=True)
-    print("Time taken: ", time.time() - start)
-    print("Plan: ", node.get_plan())
-    print("Path Cost: ", node.get_path_cost())

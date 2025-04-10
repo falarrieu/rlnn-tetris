@@ -49,6 +49,9 @@ class PositionNode(object):
         
         if len(self.trace) < 2:
             return possible_moves
+        
+        if last_moves[0] == PlacementMoves.MOVE_UP:
+            return possible_moves
 
         if last_moves.count(last_moves[0]) != len(last_moves):
             return possible_moves

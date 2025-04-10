@@ -170,7 +170,7 @@ if __name__ == "__main__":
             "lines_cleared": lines_cleared
         })
 
-        print("Time taken: ", time.time() - start)
+        print(f'Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
 
         with open("frames.json", "w") as f:
             json.dump(frames, f)

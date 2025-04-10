@@ -160,3 +160,5 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
             f_value = option.get_path_cost() + problem.heuristic(option.board, ucs_flag=ucs_flag)
 
             fringe.put(PrioritizedItem(f_value, option))
+
+    return None

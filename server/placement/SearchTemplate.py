@@ -10,7 +10,7 @@ from Board import Board, createAnimations
 from pieces import PieceProvider
 from pieces import PlacementGenerator
 
-from ValiditySearch import ValidPlacementProblem
+from ValiditySearch import ValidPlacementProblem, validity_astar_graph_search
 
 import copy
 
@@ -82,6 +82,10 @@ class Problem(object):
             piece_copy.setPosition(valid)
             
             valid_placement_problem = ValidPlacementProblem(board, first_piece, first_piece.copy().setPosition(valid))
+            valid_node = validity_astar_graph_search(valid_placement_problem)
+
+            if not valid_node:
+                continue
 
             lines_cleared = board_copy.placePiece(piece_copy)
 

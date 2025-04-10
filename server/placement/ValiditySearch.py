@@ -156,7 +156,7 @@ def validity_astar_graph_search(problem: ValidPlacementProblem, ucs_flag=False):
         successors = problem.get_successors(node)
 
         for option in successors:
-            flattened = tuple(option.board.flatten())
+            flattened = tuple(node.current_piece.x, node.current_piece.y, node.current_piece.orientation)
 
             if flattened in closed:
                 continue # We've already seen this board state, just move to next option

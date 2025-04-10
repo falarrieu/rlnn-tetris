@@ -129,8 +129,6 @@ def piece_search(problem: Problem, ucs_flag=False):
             else:
                 fringe.put(PrioritizedItem(0, option))
     
-    print(f'Final for step: iteration {counter}, fringe size: {fringe.qsize()}, best_value: {best_value}')
-
     return best
 
     

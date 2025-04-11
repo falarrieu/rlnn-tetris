@@ -50,7 +50,7 @@ class Problem(object):
         else:
             return self.your_heuristic_function(state)
             
-    def your_heuristic_function(self, state : Node, weights):
+    def your_heuristic_function(self, state : Node):
         board: Board = state.board
 
         holes = board.countHoles() if self.disabled_heuristic != 'holes' else 0

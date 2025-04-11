@@ -1,24 +1,15 @@
-# Do not change the class name or add any other libraries
-from queue import PriorityQueue, Queue
-import random
-from enum import Enum
-import numpy as np
+from queue import PriorityQueue
 from dataclasses import dataclass, field
 from typing import Any
 import time
 import json
+import copy
+import random
 
-from Board import Board, createAnimations
+from Board import Board
 from pieces import PieceProvider
 from pieces import PlacementGenerator
-
 from ValiditySearch import ValidPlacementProblem, validity_astar_graph_search
-
-import cProfile
-import pstats
-
-import copy
-
 
 # Taken from python docs
 @dataclass(order=True)
@@ -43,9 +34,8 @@ class Node(object):
         return len(self.trace)
 
 class Problem(object):
-    def __init__(self):
-        # self.set_initial_state()
-        pass
+    def __init__(self, disabled_heuristic=None):
+        self.disabled_heuristic = disabled_heuristic
     
     def set_initial_state(self, curBoard: Board, nextPieces):
         """The initial state for tetris is just the board and random piece.""" 
@@ -60,15 +50,31 @@ class Problem(object):
         else:
             return self.your_heuristic_function(state)
             
-    def your_heuristic_function(self, state : Node):
-        """Count the number of holes and lines cleared"""
+    def your_heuristic_function(self, state : Node, weights):
         board: Board = state.board
 
-        holes = board.countHoles()
-        lines = state.lines_cleared
+        holes = board.countHoles() if self.disabled_heuristic != 'holes' else 0
+        lines = (state.lines_cleared / 4) if self.disabled_heuristic != 'lines' else 0
+        depth = board.get_fully_empty_depth() if self.disabled_heuristic != 'depth' else 0
+        density = board.get_density_under_highest_block() if self.disabled_heuristic != 'density' else 0
+
+        return  lines + (-holes) + depth + density
+    
+    def weighted_heuristic(self, state: Node, weights):
+        board = state.board
+
+        holes = board.countHoles() 
+        lines = (state.lines_cleared / 4) 
         depth = board.get_fully_empty_depth()
-                
-        return lines - holes + depth
+        density = board.get_density_under_highest_block()
+
+        return (
+            weights[0] * lines +
+            weights[1] * (-holes) +
+            weights[2] * depth +
+            weights[3] * density
+        )
+
 
     def get_successors(self, node : Node):
         """"""
@@ -107,7 +113,7 @@ def piece_search(problem: Problem, ucs_flag=False):
     start_state = problem.initial_state
     
     fringe = PriorityQueue()
-    fringe.put(PrioritizedItem(0, start_state)) # Initialize with start state
+    fringe.put(PrioritizedItem(0, start_state)) 
     
     best = None
     best_value = 0
@@ -129,14 +135,177 @@ def piece_search(problem: Problem, ucs_flag=False):
     
     return best
 
-    
+# Ablation Study ##################################################
 
-if __name__ == "__main__":    
-    # profiler = cProfile.Profile()
-    # profiler.enable()
+def run_abalation_study():
+    games = 3
+    play_frames = 500
+    heuristics = [None, 'lines', 'holes', 'depth', 'density']
+    results = []
 
-    games = 10
+    for excluded in heuristics:
+        label = "All heuristics" if excluded is None else f"No {excluded}"
 
+        total_lines = 0
+        total_frames = 0
+
+        print(f"\n=== Running: {label} ===")
+        for game in range(games):
+            piece_provider = PieceProvider()
+            pieces = [piece_provider.getNext() for _ in range(2)]
+            current_board = Board()
+            lines_cleared = 0
+
+            for i in range(play_frames):
+                search = Problem(disabled_heuristic=excluded)
+                search.set_initial_state(current_board, pieces)
+
+                best_state = piece_search(search)
+
+                if best_state is None:
+                    print(f"Game Over at frame {i}")
+                    break
+
+                next_action = best_state.get_plan()[0]
+                lines_cleared += current_board.placePiece(next_action)
+                pieces = pieces[1:] + [piece_provider.getNext()]
+                total_frames += i
+
+            print(f"Game {game} finished with {lines_cleared} lines")
+            total_lines += lines_cleared
+            
+
+
+        avg_lines = total_lines / games
+        avg_frames = total_frames / games
+        results.append({"excluded": excluded or "none", "avg_lines_cleared": avg_lines, "avg_frames_survived": avg_frames})
+
+    with open("ablation_results.json", "w") as f:
+        json.dump(results, f, indent=2)
+
+    print("\n--- Final Results ---")
+    for r in results:
+        print(f"{r['excluded']:>10}: {r['avg_lines_cleared']} avg lines cleared")
+
+# Genetic Algorithm ##################################################
+
+def weighted_piece_search(problem: Problem, weights):
+    start_state = problem.initial_state
+    fringe = PriorityQueue()
+    fringe.put(PrioritizedItem(0, start_state)) 
+    best = None
+    best_value = 0
+
+    while not fringe.empty():
+        node = fringe.get().item
+        successors = problem.get_successors(node)
+
+        for option in successors:
+            score = problem.weighted_heuristic(option, weights)
+            if len(option.piece_list) == 0:
+                if score > best_value or best is None:
+                    best_value = score
+                    best = option
+            else:
+                fringe.put(PrioritizedItem(0, option))
+
+    return best
+
+def evaluate_weights(weights, play_frames=500):
+    piece_provider = PieceProvider()
+    pieces = [piece_provider.getNext() for _ in range(2)]
+    current_board = Board()
+    lines_cleared = 0
+
+    for i in range(play_frames):
+        search = Problem()
+        search.set_initial_state(current_board, pieces)
+
+        best_state = weighted_piece_search(search, weights)
+        if best_state is None:
+            return lines_cleared, i 
+
+        next_action = best_state.get_plan()[0]
+        lines_cleared += current_board.placePiece(next_action)
+        pieces = pieces[1:] + [piece_provider.getNext()]
+
+    return lines_cleared, play_frames
+
+def run_genetic_algorithm(generations=10, population_size=10, mutation_rate=0.2):
+    population = [random_weights() for _ in range(population_size)]
+    best = None
+    history = [] 
+
+    for gen in range(generations):
+        print(f"\n🌱 Generation {gen + 1}")
+        generation_data = {
+            "generation": gen + 1,
+            "individuals": []
+        }
+
+        scored = []
+
+        for i, weights in enumerate(population):
+            lines, frames = evaluate_weights(weights)
+            fitness = lines + 0.1 * frames
+
+            scored.append((fitness, weights))
+
+            generation_data["individuals"].append({
+                "index": i,
+                "fitness": fitness,
+                "lines_cleared": lines,
+                "frames_survived": frames,
+                "weights": weights
+            })
+
+            print(f"  Individual {i}: score={fitness:.2f}, lines={lines}, frames={frames}, weights={weights}")
+
+        # Sort by fitness
+        scored.sort(reverse=True)
+        population = [w for _, w in scored[:3]]
+
+        # Generate next generation
+        while len(population) < population_size:
+            parent1, parent2 = random.sample(population[:3], 2)
+            child = crossover(parent1, parent2)
+            if random.random() < mutation_rate:
+                child = mutate(child)
+            population.append(child)
+
+        best = scored[0]
+        generation_data["best"] = {
+            "fitness": best[0],
+            "weights": best[1]
+        }
+
+        history.append(generation_data)
+
+    print(f"\n🏆 Best weights: {best[1]} → score={best[0]:.2f}")
+
+    # Save results
+    with open("genetic_results.json", "w") as f:
+        json.dump(history, f, indent=2)
+
+    return best[1]
+
+def random_weights():
+    return [
+        round(random.uniform(0.0, 2.0), 2),   # lines
+        round(random.uniform(0.0, 2.0), 2),  # holes (penalty)
+        round(random.uniform(0.0, 1.0), 2),   # depth
+        round(random.uniform(0.0, 2.0), 2),   # density
+    ]
+
+def crossover(w1, w2):
+    return [(a + b) / 2 for a, b in zip(w1, w2)]
+
+def mutate(weights):
+    return [w + random.uniform(-0.3, 0.3) for w in weights]
+
+# Basic Run ##################################################
+
+def run_games_and_frames(games = 10, play_frames = 100):
     for game in range(games):
 
         piece_provider = PieceProvider()
@@ -150,14 +319,14 @@ if __name__ == "__main__":
         frames = []
 
         start = time.time()
-        for i in range(15000):
+        for i in range(play_frames):
             search = Problem()
 
             search.set_initial_state(current_board, pieces)
 
             best_state = piece_search(search)
 
-            if not best_state:
+            if best_state == None:
                 print("Game Over")
                 with open(f'{game}_frames.json', "w") as f:
                     json.dump(frames, f)
@@ -174,24 +343,13 @@ if __name__ == "__main__":
                 "lines_cleared": lines_cleared
             })
 
-            print(f'Frame: {i}, Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
+            print(f'Game: {game}, Frame: {i}, Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
 
-            with open(f'{game}_frames.json', "w") as f:
-                json.dump(frames, f)
+            if i % 10 == 0 or play_frames - 1 == i:
+                with open(f'{game}_frames.json', "w") as f:
+                    json.dump(frames, f)
 
-    # Uncomment Below to Create Animation from File
-    # with open("frames.json", "r") as f:
-    #     frame_data = json.load(f)
-
-    # # Convert dictionaries back into (Board, lines_cleared) tuples
-    # frames = [
-    #     (Board.from_dict(frame["board"]), frame["lines_cleared"])
-    #     for frame in frame_data
-    # ]
-
-    # # Animate them
-    # createAnimations(frames)
-
-    # profiler.disable()
-    # stats = pstats.Stats(profiler)
-    # stats.sort_stats('cumulative').print_stats(10)
+if __name__ == "__main__":  
+    # run_games_and_frames() 
+    # run_abalation_study() 
+    run_genetic_algorithm()

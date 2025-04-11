@@ -23,7 +23,6 @@ plt.ylabel("Avg Lines Cleared")
 plt.grid(axis="y")
 plt.tight_layout()
 plt.savefig("ablation_lines.png")
-plt.show()
 
 
 # Plot 2: Frames Survived
@@ -35,4 +34,3 @@ plt.ylabel("Avg Frames Survived")
 plt.grid(axis="y")
 plt.tight_layout()
 plt.savefig("ablation_frames.png")
-plt.show()

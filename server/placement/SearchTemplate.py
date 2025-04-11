@@ -135,47 +135,51 @@ if __name__ == "__main__":
     # profiler = cProfile.Profile()
     # profiler.enable()
 
-    piece_provider = PieceProvider()
+    games = 10
 
-    pieces = [piece_provider.getNext() for i in range(2)] # Generate first two pieces
+    for game in range(games):
 
-    current_board = Board()
+        piece_provider = PieceProvider()
 
-    lines_cleared = 0
+        pieces = [piece_provider.getNext() for i in range(2)] # Generate first two pieces
 
-    frames = []
+        current_board = Board()
 
-    start = time.time()
-    for i in range(500):
-        search = Problem()
+        lines_cleared = 0
 
-        search.set_initial_state(current_board, pieces)
+        frames = []
 
-        best_state = piece_search(search)
+        start = time.time()
+        for i in range(15000):
+            search = Problem()
 
-        if not best_state:
-            print("Game Over")
-            with open("frames.json", "w") as f:
+            search.set_initial_state(current_board, pieces)
+
+            best_state = piece_search(search)
+
+            if not best_state:
+                print("Game Over")
+                with open(f'{game}_frames.json', "w") as f:
+                    json.dump(frames, f)
+                break 
+            
+            next_action = best_state.get_plan()[0]
+
+            lines_cleared += current_board.placePiece(next_action)
+
+            pieces = pieces[1:] + [piece_provider.getNext()]
+
+            frames.append({
+                "board": current_board.to_dict(),
+                "lines_cleared": lines_cleared
+            })
+
+            print(f'Frame: {i}, Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
+
+            with open(f'{game}_frames.json', "w") as f:
                 json.dump(frames, f)
-            break 
-        
-        next_action = best_state.get_plan()[0]
 
-        lines_cleared += current_board.placePiece(next_action)
-
-        pieces = pieces[1:] + [piece_provider.getNext()]
-
-        frames.append({
-            "board": current_board.to_dict(),
-            "lines_cleared": lines_cleared
-        })
-
-        print(f'Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
-
-        with open("frames.json", "w") as f:
-            json.dump(frames, f)
-
-
+    # Uncomment Below to Create Animation from File
     # with open("frames.json", "r") as f:
     #     frame_data = json.load(f)
 

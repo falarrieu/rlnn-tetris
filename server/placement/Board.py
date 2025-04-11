@@ -1,7 +1,5 @@
 import numpy as np
 import random as rand
-import matplotlib.pyplot as plt 
-from matplotlib.animation import FuncAnimation
 
 class Board:
 
@@ -65,14 +63,39 @@ class Board:
                     block_found = True
                 elif self.board[row][col] == 0 and block_found:
                     holes += 1
-        return holes
+
+        normalized_value = (holes - 0) / (50 - 0)
+        return normalized_value
     
     def get_fully_empty_depth(self):
         for i, row in enumerate(self.board):
             if np.any(row != 0):
-                return i
-        
-        return self.height
+                return (i - 0) / (self.height - 0)
+
+        return 1.0 # (self.height - 0) / (self.height - 0)
+    
+    def get_density_under_highest_block(self):
+        top_row = None
+        for i, row in enumerate(self.board):
+            if np.any(row != 0):
+                top_row = i
+                break  # Found the highest block
+
+        if top_row is None:
+            return 0.0  # Board is empty
+
+        filled_cells = 0
+        total_cells = (self.height - top_row) * self.width
+
+        for row in range(top_row, self.height):
+            for col in range(self.width):
+                if self.board[row][col] == 1:
+                    filled_cells += 1
+
+        density_ratio = filled_cells / total_cells if total_cells > 0 else 0.0
+        return density_ratio
+
+
     
     def linesCleared(self):
         new_board = []
@@ -90,7 +113,7 @@ class Board:
 
         self.board = np.array(new_board)
         return lines_cleared
-
+    
     def testBoard(self):   
         self.board = np.array([
             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
@@ -130,7 +153,6 @@ class Board:
         return board
 
     def sinRandomFrame(self, verbose=False):
-        # rand.seed(12)
         board = self.board.copy()
         x = np.arange(0, self.width, 1)
         inverse = rand.randint(0, 1)
@@ -141,11 +163,7 @@ class Board:
             amplitude = np.sin(x) + np.random.normal(scale=.4, size=len(x)) + axis
 
         processed_amp = np.round(amplitude)
-        # processed_amp[processed_amp <= 0] = 0
         processed_amp[processed_amp > self.height - 1] = 0
-        if verbose:
-            plt.plot(x, processed_amp)
-            plt.show()
 
         for col in range(self.width):
             board[int(processed_amp[col])][col] = 1
@@ -162,24 +180,3 @@ class Board:
         board = Board()
         board.board = np.array(data["board"])
         return board
-
-
-def createAnimations(frames):
-    fig, ax = plt.subplots()
-    gray_map = plt.cm.get_cmap('gray')
-
-    # Initialize with the first frame
-    im = ax.imshow(frames[0][0].board, cmap=gray_map.reversed(), vmin=0, vmax=1)
-
-    def frameUpdate(i):
-        board = frames[i][0].board
-        im.set_data(board)
-        ax.set_title(f'Frame {i}')
-        ax.set_ylabel(f'Lines Cleared: {frames[i][1]}', rotation=0)
-
-
-    ani = FuncAnimation(fig, frameUpdate, frames=len(frames), interval=200)
-    ani.save('tetris_animation.gif', dpi=100, writer='pillow')
-    plt.close()
-
-    

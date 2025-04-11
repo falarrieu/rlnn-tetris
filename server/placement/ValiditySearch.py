@@ -6,7 +6,7 @@ import numpy as np
 from dataclasses import dataclass, field
 from typing import Any
 
-from Board import Board, createAnimations
+from Board import Board
 from pieces import PieceProvider
 from pieces import PlacementGenerator
 

@@ -25,13 +25,17 @@ def plot_fitness(history):
     plt.savefig("fitness_over_generations.png")
 
 def plot_weight_evolution(history):
+    plt.figure(figsize=(10, 5)) 
     num_weights = len(history[0]["best"]["weights"])
     generations = [gen["generation"] for gen in history]
+
+    weight_labels = ["Lines", "Holes", "Depth", "Density"]
 
     # For each weight index, track evolution of its value
     for i in range(num_weights):
         weight_values = [gen["best"]["weights"][i] for gen in history]
-        plt.plot(generations, weight_values, label=f"Weight {i}")
+
+        plt.plot(generations, weight_values, label=f"{weight_labels[i]} Weight")
 
     plt.title("Best Weights over Generations")
     plt.xlabel("Generation")

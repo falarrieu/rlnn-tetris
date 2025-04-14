@@ -139,7 +139,7 @@ def piece_search(problem: Problem, ucs_flag=False):
 
 def run_abalation_study():
     games = 3
-    play_frames = 500
+    play_frames = 5000
     heuristics = [None, 'lines', 'holes', 'depth', 'density']
     results = []
 
@@ -211,7 +211,7 @@ def weighted_piece_search(problem: Problem, weights):
 
     return best
 
-def evaluate_weights(weights, play_frames=500):
+def evaluate_weights(weights, play_frames=5000):
     piece_provider = PieceProvider()
     pieces = [piece_provider.getNext() for _ in range(2)]
     current_board = Board()
@@ -305,7 +305,7 @@ def mutate(weights):
 
 # Basic Run ##################################################
 
-def run_games_and_frames(games = 10, play_frames = 100):
+def run_games_and_frames(games = 10, play_frames = 5000):
     for game in range(games):
 
         piece_provider = PieceProvider()

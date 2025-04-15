@@ -138,7 +138,7 @@ def piece_search(problem: Problem, ucs_flag=False):
 # Ablation Study ##################################################
 
 def run_abalation_study():
-    games = 3
+    games = 10
     play_frames = 5000
     heuristics = [None, 'lines', 'holes', 'depth', 'density']
     results = []

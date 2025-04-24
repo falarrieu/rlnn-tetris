@@ -1,0 +1,27 @@
+[
+  {
+    "excluded": "none",
+    "avg_lines_cleared": 1152.0,
+    "avg_frames_survived": 5259356.0
+  },
+  {
+    "excluded": "lines",
+    "avg_lines_cleared": 150.4,
+    "avg_frames_survived": 118994.2
+  },
+  {
+    "excluded": "holes",
+    "avg_lines_cleared": 19.8,
+    "avg_frames_survived": 3471.1
+  },
+  {
+    "excluded": "depth",
+    "avg_lines_cleared": 785.8,
+    "avg_frames_survived": 2770986.2
+  },
+  {
+    "excluded": "density",
+    "avg_lines_cleared": 1335.9,
+    "avg_frames_survived": 6885331.3
+  }
+]

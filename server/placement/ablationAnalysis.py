@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Load results
-with open("ablation_results.json", "r") as f:
+with open("./results/ablation_results.json", "r") as f:
     data = json.load(f)
 
 df = pd.DataFrame(data)

@@ -7,7 +7,7 @@ import copy
 import random
 
 from Board import Board
-from pieces import PieceProvider
+from pieces import SevenBagPieceProvider, PieceProvider
 from pieces import PlacementGenerator
 from ValiditySearch import ValidPlacementProblem, validity_astar_graph_search
 
@@ -261,11 +261,9 @@ def run_genetic_algorithm(generations=10, population_size=10, mutation_rate=0.2)
 
             print(f"  Individual {i}: score={fitness:.2f}, lines={lines}, frames={frames}, weights={weights}")
 
-        # Sort by fitness
         scored.sort(reverse=True)
         population = [w for _, w in scored[:3]]
 
-        # Generate next generation
         while len(population) < population_size:
             parent1, parent2 = random.sample(population[:3], 2)
             child = crossover(parent1, parent2)
@@ -283,7 +281,6 @@ def run_genetic_algorithm(generations=10, population_size=10, mutation_rate=0.2)
 
     print(f"\n🏆 Best weights: {best[1]} → score={best[0]:.2f}")
 
-    # Save results
     with open("genetic_results.json", "w") as f:
         json.dump(history, f, indent=2)
 
@@ -305,7 +302,7 @@ def mutate(weights):
 
 # Basic Run ##################################################
 
-def run_games_and_frames(games = 10, play_frames = 5000):
+def run_games_and_frames(games = 5, play_frames = 500):
     for game in range(games):
 
         piece_provider = PieceProvider()
@@ -343,13 +340,16 @@ def run_games_and_frames(games = 10, play_frames = 5000):
                 "lines_cleared": lines_cleared
             })
 
-            print(f'Game: {game}, Frame: {i}, Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
+            # print(f'Game: {game}, Frame: {i}, Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
 
             if i % 10 == 0 or play_frames - 1 == i:
                 with open(f'{game}_frames.json', "w") as f:
                     json.dump(frames, f)
 
+        print(f'Game: {game},  Time taken: {time.time() - start}, Lines Cleared: {lines_cleared}')
+
+
 if __name__ == "__main__":  
-    # run_games_and_frames() 
+    run_games_and_frames() 
     # run_abalation_study() 
-    run_genetic_algorithm()
+    # run_genetic_algorithm()

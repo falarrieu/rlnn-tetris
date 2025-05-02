@@ -7,4 +7,5 @@ from pieces.Z import Z
 from pieces.L import L
 from pieces.J import J
 from pieces.PieceProvider import PieceProvider
+from pieces.SevenBagPieceProvider import SevenBagPieceProvider
 from pieces.PlacementGenerator import *

@@ -1,7 +1,7 @@
 import json
 import matplotlib.pyplot as plt
 
-def load_data(file="genetic_results.json"):
+def load_data(file="./results/genetic_results.json"):
     with open(file, "r") as f:
         return json.load(f)
 
